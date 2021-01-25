@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.12)
+
+project(opengl_test)
+find_package(glfw3 REQUIRED)
+add_subdirectory(lib/glad)
+
+
+add_executable(opengl_test main.cpp)
+target_link_libraries(opengl_test PRIVATE glad)
+target_link_libraries(opengl_test PRIVATE glfw3)
