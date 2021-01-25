@@ -30,3 +30,4 @@
 *.app
 *.zip
 /build
+/build.emscripten
