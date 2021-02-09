@@ -31,3 +31,7 @@
 *.zip
 /build
 /build.emscripten
+/wasm_code
+/example_code
+/node_modules
+/CMakeFiles

@@ -10,7 +10,7 @@
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
 #include <iostream>
-#include "./lib/linmath.h"
+#include "../lib/linmath.h"
 #include "Optr_ol.hpp"
 static const struct
 {
