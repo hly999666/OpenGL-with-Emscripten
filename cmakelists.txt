@@ -4,8 +4,9 @@ project(opengl_test)
 set(EXCE_NAME "opengl_test_0")
 #set(glm_DIR "${PROJECT_SOURCE_DIR}/lib/glm/cmake/glm")
 #find_package(glm CONFIG REQUIRED)
-
-set(SRC src/main_cg.cpp)
+set(USE_IMGUI ON)
+set(SRC src/main_cg_neo.cpp)
+if(USE_IMGUI)
 set(SRC 
     "${SRC}"
      lib/imgui/imconfig.h
@@ -24,6 +25,7 @@ set(SRC
      lib/imgui/imstb_textedit.h
      lib/imgui/imstb_truetype.h
 )
+endif()
 add_subdirectory(lib/glm)
 add_subdirectory(lib/05_dir)
 message("${SRC}")

@@ -10,6 +10,7 @@
 #include <glfw/glfw3.h>
  
 #include <glm/glm.hpp>
+//for imgui.h
 #include "../lib/imgui/imgui.h"
 #include "../lib/imgui/backends/imgui_impl_opengl3.h"
 #include "../lib/imgui/backends/imgui_impl_glfw.h"
@@ -107,7 +108,7 @@ int main(void)
 #else
   bool  err = gladLoadGL() == 0; 
   std::cout << "gladErr " << err << std::endl;
-#endif
+
     glfwSwapInterval(1);
     // NOTE: OpenGL error checks have been omitted for brevity
     //set up buffer
