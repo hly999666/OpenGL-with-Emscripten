@@ -1,10 +1,59 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(emscripten_test)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+project(opengl_test)
+set(EXCE_NAME "opengl_test_0")
+#set(glm_DIR "${PROJECT_SOURCE_DIR}/lib/glm/cmake/glm")
+#find_package(glm CONFIG REQUIRED)
+
+set(SRC src/main_cg.cpp)
+set(SRC 
+    "${SRC}"
+     lib/imgui/imconfig.h
+     lib/imgui/imgui.h
+     lib/imgui/imgui.cpp
+     lib/imgui/backends/imgui_impl_glfw.cpp
+     lib/imgui/backends/imgui_impl_glfw.h
+     lib/imgui/backends/imgui_impl_opengl3.cpp
+     lib/imgui/backends/imgui_impl_opengl3.h
+     lib/imgui/imgui_demo.cpp
+     lib/imgui/imgui_draw.cpp
+     lib/imgui/imgui_internal.h
+     lib/imgui/imgui_tables.cpp
+     lib/imgui/imgui_widgets.cpp
+     lib/imgui/imstb_rectpack.h
+     lib/imgui/imstb_textedit.h
+     lib/imgui/imstb_truetype.h
+)
+add_subdirectory(lib/glm)
+add_subdirectory(lib/05_dir)
+message("${SRC}")
+#find_package(OpenGL REQUIRED)
+if(BUILDWASM)
 set(CMAKE_EXECUTABLE_SUFFIX ".html")
-add_subdirectory(./lib/05_dir) 
-add_executable(emscripten_test_2 src/pong.cpp)
-target_link_libraries(emscripten_test_2 PRIVATE Operator_OverLoading)
-set_target_properties(emscripten_test_2 PROPERTIES LINK_FLAGS  "-O2 -s  USE_WEBGL2=2 -s USE_GLFW=3   -s WASM=1 -std=c++11 --shell-file html/shell_minimal.html")
- 
+else()
+add_subdirectory(lib/glad)
+find_package(glfw3 CONFIG REQUIRED)
+endif()
+#add_subdirectory(lib/imgui)
+
+add_executable(${EXCE_NAME} ${SRC})
+target_link_libraries(${EXCE_NAME}  PRIVATE glm)
+#target_link_libraries(${EXCE_NAME}  PRIVATE imgui)
+if(BUILDWASM)
+
+else()
+#target_link_libraries(${EXCE_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
+target_link_libraries(${EXCE_NAME}  PRIVATE glad)
+target_link_libraries(${EXCE_NAME}  PRIVATE glfw)
+
+endif()
+target_link_libraries(${EXCE_NAME}  PRIVATE Operator_OverLoading)
+if(BUILDWASM)
+set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -s  USE_WEBGL2=2 -s USE_GLFW=3   -s WASM=1 -std=c++11 --shell-file html/shell_minimal.html")
+else()
+
+endif()
+
+
+
+

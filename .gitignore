@@ -35,3 +35,7 @@
 /example_code
 /node_modules
 /CMakeFiles
+/out
+
+/.vs
+/lib

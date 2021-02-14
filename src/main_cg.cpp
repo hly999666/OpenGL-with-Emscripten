@@ -7,7 +7,12 @@
 #else
 #include <glad/glad.h>
 #endif
-#include <GLFW/glfw3.h>
+#include <glfw/glfw3.h>
+ 
+#include <glm/glm.hpp>
+#include "../lib/imgui/imgui.h"
+#include "../lib/imgui/backends/imgui_impl_opengl3.h"
+#include "../lib/imgui/backends/imgui_impl_glfw.h"
 #include <stdlib.h>
 #include <iostream>
 #include "../lib/linmath.h"
@@ -20,7 +25,8 @@ static const struct
     {
         {-0.6f, -0.4f, 1.f, 0.f, 0.f},
         {0.6f, -0.4f, 0.f, 1.f, 0.f},
-        {0.f, 0.6f, 0.f, 0.f, 1.f}};
+        {0.f, 0.6f, 0.f, 0.f, 1.f}
+};
 
 static const char *vertex_shader_text =
     "uniform mat4 MVP;\n"
@@ -41,6 +47,8 @@ static const char *fragment_shader_text =
     "    gl_FragColor = vec4(color, 1.0);\n"
     "}\n";
 
+
+glm::ivec2 window_res(1920, 1080);
 static void error_callback(int error, const char *description)
 {
     fprintf(stderr, "Error: %s\n", description);
@@ -79,9 +87,15 @@ int main(void)
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
         exit(EXIT_FAILURE);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+#ifdef __EMSCRIPTEN__
+   const char* glsl_version = "#version 300 es";
+#else
+    const char* glsl_version = "#version 460";
+#endif
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    auto window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
+
+    auto window = glfwCreateWindow(window_res.x, window_res.y, "Simple example", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -91,15 +105,17 @@ int main(void)
     glfwMakeContextCurrent(window);
 #ifdef __EMSCRIPTEN__
 #else
-    gladLoadGL();
+  bool  err = gladLoadGL() == 0; 
+  std::cout << "gladErr " << err << std::endl;
 #endif
     glfwSwapInterval(1);
     // NOTE: OpenGL error checks have been omitted for brevity
+    //set up buffer
     GLuint vertex_buffer;
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
+    //setup shader
     auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
     glCompileShader(vertex_shader);
@@ -114,17 +130,38 @@ int main(void)
     glAttachShader(program, vertex_shader);
     glAttachShader(program, fragment_shader);
     glLinkProgram(program);
+    //find uniform
     mvp_location = glGetUniformLocation(program, "MVP");
     vpos_location = glGetAttribLocation(program, "vPos");
     vcol_location = glGetAttribLocation(program, "vCol");
+
+    //set vao pointer
     glEnableVertexAttribArray(vpos_location);
     glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE,
                           sizeof(vertices[0]), (void *)0);
+
     glEnableVertexAttribArray(vcol_location);
     glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE,
                           sizeof(vertices[0]), (void *)(sizeof(float) * 2));
 
+
+    //set up imgui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+    char str_buf[128];
+    float fval = 0;
+    //render loop function
     loop = [&] {
+
+        glfwPollEvents();
+
+
+     
+
         float ratio;
         int width, height;
         mat4x4 m, p, mvp;
@@ -139,8 +176,29 @@ int main(void)
         glUseProgram(program);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat *)mvp);
         glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
+
+        //imgui 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::Begin("Hello, world!");
+        ImGui::Text("Hello, world %d", 123);
+        if (ImGui::Button("Save")) { std::cout << "Clickk save" << std::endl; }
+
+        ImGui::InputText("string", str_buf, IM_ARRAYSIZE(str_buf));
+        ImGui::SliderFloat("float", &fval, 0.0f, 1.0f);
+        ImGui::End();
+
+        ImGui::Render();
+
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(window);
-        glfwPollEvents();
+
+        //glfwPollEvents();
     };
 
 #ifdef __EMSCRIPTEN__
