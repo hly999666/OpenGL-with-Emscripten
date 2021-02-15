@@ -4,8 +4,8 @@ project(opengl_test)
 set(EXCE_NAME "opengl_test_0")
 #set(glm_DIR "${PROJECT_SOURCE_DIR}/lib/glm/cmake/glm")
 #find_package(glm CONFIG REQUIRED)
-set(USE_IMGUI ON)
-set(SRC src/main_cg_neo.cpp)
+set(USE_IMGUI OFF)
+set(SRC src/pong.cpp)
 if(USE_IMGUI)
 set(SRC 
     "${SRC}"

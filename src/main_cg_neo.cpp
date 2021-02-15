@@ -226,6 +226,14 @@ int main()
 	while (!glfwWindowShouldClose(window))main_loop();
 #endif
 
+
+	// Cleanup
+	//cleanup imgui
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
+	//cleanup glfw
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
