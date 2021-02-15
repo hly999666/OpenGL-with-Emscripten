@@ -5,26 +5,22 @@ set(EXCE_NAME "opengl_test_0")
 #set(glm_DIR "${PROJECT_SOURCE_DIR}/lib/glm/cmake/glm")
 #find_package(glm CONFIG REQUIRED)
 set(USE_IMGUI ON)
-set(SRC src/main_gl_c6_Shaders.cpp)
-if(USE_IMGUI)
+set(USE_IMPLOT ON)
+set(SRC src/main_imgui_test.cpp)
+
+#include my files
 set(SRC 
     "${SRC}"
-     lib/imgui/imconfig.h
-     lib/imgui/imgui.h
-     lib/imgui/imgui.cpp
-     lib/imgui/backends/imgui_impl_glfw.cpp
-     lib/imgui/backends/imgui_impl_glfw.h
-     lib/imgui/backends/imgui_impl_opengl3.cpp
-     lib/imgui/backends/imgui_impl_opengl3.h
-     lib/imgui/imgui_demo.cpp
-     lib/imgui/imgui_draw.cpp
-     lib/imgui/imgui_internal.h
-     lib/imgui/imgui_tables.cpp
-     lib/imgui/imgui_widgets.cpp
-     lib/imgui/imstb_rectpack.h
-     lib/imgui/imstb_textedit.h
-     lib/imgui/imstb_truetype.h
+     src/lyh_gl_lib/gl_helper.hpp
 )
+if(USE_IMGUI)
+   find_package(imgui CONFIG REQUIRED)
+
+
+endif()
+
+if(USE_IMPLOT)
+     find_package(implot CONFIG REQUIRED)
 endif()
 add_subdirectory(lib/glm)
 add_subdirectory(lib/05_dir)
@@ -33,6 +29,7 @@ message("${SRC}")
 if(BUILDWASM)
 set(CMAKE_EXECUTABLE_SUFFIX ".html")
 else()
+#find_package(GLEW REQUIRED)
 add_subdirectory(lib/glad)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(Boost REQUIRED filesystem)
@@ -46,9 +43,11 @@ if(BUILDWASM)
 
 else()
 #target_link_libraries(${EXCE_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
-target_link_libraries(${EXCE_NAME}  PRIVATE glad)
-target_link_libraries(${EXCE_NAME}  PRIVATE glfw)
-target_link_libraries(${EXCE_NAME} PRIVATE Boost::boost Boost::filesystem)
+   #target_link_libraries(${EXCE_NAME}  PRIVATE GLEW::GLEW)
+    target_link_libraries(${EXCE_NAME}  PRIVATE glfw)
+    target_link_libraries(${EXCE_NAME} PRIVATE Boost::boost Boost::filesystem)
+    target_link_libraries(${EXCE_NAME}  PRIVATE imgui::imgui)
+    target_link_libraries(${EXCE_NAME} PRIVATE implot::implot)
 endif()
 target_link_libraries(${EXCE_NAME}  PRIVATE Operator_OverLoading)
  

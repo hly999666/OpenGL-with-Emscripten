@@ -23,7 +23,8 @@
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "clang_cl_x64_x64" ],
-      "variables": []
+      "variables": [],
+      "cmakeToolchain": "P:/vcpkg/scripts/buildsystems/vcpkg.cmake"
     }
   ]
 }

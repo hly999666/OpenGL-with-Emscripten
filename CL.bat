@@ -10,3 +10,5 @@ emcc main.cpp -o ./build.emscripten/index.html -s USE_WEBGL2=2 -s USE_GLFW=3 -s 
  emcc factorial.cpp -o factorial.wasm -Oz -s EXPORTED_FUNCTIONS="[_factorial]"
  emcc string_example.cpp -o string_example.html  -s EXTRA_EXPORTED_RUNTIME_METHODS="['getValue']"
 
+
+ imgui[opengl3-glad-binding,glfw-binding]:x64-windows
