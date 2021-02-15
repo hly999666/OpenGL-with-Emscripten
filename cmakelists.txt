@@ -4,8 +4,8 @@ project(opengl_test)
 set(EXCE_NAME "opengl_test_0")
 #set(glm_DIR "${PROJECT_SOURCE_DIR}/lib/glm/cmake/glm")
 #find_package(glm CONFIG REQUIRED)
-set(USE_IMGUI OFF)
-set(SRC src/pong.cpp)
+set(USE_IMGUI ON)
+set(SRC src/main_gl_c6_Shaders.cpp)
 if(USE_IMGUI)
 set(SRC 
     "${SRC}"
@@ -35,6 +35,7 @@ set(CMAKE_EXECUTABLE_SUFFIX ".html")
 else()
 add_subdirectory(lib/glad)
 find_package(glfw3 CONFIG REQUIRED)
+find_package(Boost REQUIRED filesystem)
 endif()
 #add_subdirectory(lib/imgui)
 
@@ -47,13 +48,15 @@ else()
 #target_link_libraries(${EXCE_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
 target_link_libraries(${EXCE_NAME}  PRIVATE glad)
 target_link_libraries(${EXCE_NAME}  PRIVATE glfw)
-
+target_link_libraries(${EXCE_NAME} PRIVATE Boost::boost Boost::filesystem)
 endif()
 target_link_libraries(${EXCE_NAME}  PRIVATE Operator_OverLoading)
+ 
 if(BUILDWASM)
-set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -s  USE_WEBGL2=2 -s USE_GLFW=3   -s WASM=1 -std=c++11 --shell-file html/shell_minimal.html")
+set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -s  USE_WEBGL2=2 -s USE_GLFW=3   -s WASM=1 -std=c++17 --shell-file html/shell_minimal.html")
 else()
-
+#set_property(TARGET ${EXCE_NAME}   PROPERTY CXX_STANDARD 11)
+  file(COPY "res" DESTINATION ${CMAKE_BINARY_DIR})
 endif()
 
 
