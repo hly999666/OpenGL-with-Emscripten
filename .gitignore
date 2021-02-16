@@ -38,4 +38,5 @@
 /out
 /lib
 /.vs
-/externs
+/externs/glad
+/externs/glm

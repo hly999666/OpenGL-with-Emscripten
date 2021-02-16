@@ -4,8 +4,7 @@
 #define EGL_EGLEXT_PROTOTYPES
 #else
 #include <GL/glew.h>    
- 
-#include <boost/filesystem.hpp>
+ #include <boost/filesystem.hpp>
 #endif
 #include <glfw/glfw3.h>
 #include <functional>

@@ -5,8 +5,8 @@ set(EXCE_NAME "opengl_test_0")
 #set(glm_DIR "${PROJECT_SOURCE_DIR}/lib/glm/cmake/glm")
 #find_package(glm CONFIG REQUIRED)
 set(USE_IMGUI ON)
-set(USE_IMPLOT ON)
-set(SRC src/main_gl_c6_Shaders.cpp)
+ set(USE_IMPLOT ON)
+set(SRC src/shaders_interpolation.cpp)
 
 #include my files
 set(SRC 
@@ -15,13 +15,27 @@ set(SRC
      src/lyh_gl_lib/shader.hpp
 )
 if(USE_IMGUI)
-   find_package(imgui CONFIG REQUIRED)
+set(IMGUI_SRC
+    externs/imgui/imgui.cpp
+    externs/imgui/imgui_draw.cpp
+    externs/imgui/imgui_widgets.cpp
+    externs/imgui/imgui_demo.cpp
+    externs/imgui/imgui_impl_glfw.cpp
+    externs/imgui/imgui_impl_opengl3.cpp
+ 
+) 
 endif()
 
-if(USE_IMPLOT)
-   find_package(implot CONFIG REQUIRED)
+ if(USE_IMPLOT)
+set(IMPLOT_SRC
+ externs/implot/implot.h
+  externs/implot/implot_internal.h
+    externs/implot/implot.cpp
+    externs/implot/implot_demo.cpp
+    externs/implot/implot_items.cpp
+) 
 endif()
-add_subdirectory(externs/glm)
+#add_subdirectory(externs/glm)
 add_subdirectory(lib/05_dir)
 message("${SRC}")
 #find_package(OpenGL REQUIRED)
@@ -31,27 +45,30 @@ else()
 find_package(GLEW REQUIRED)
 #add_subdirectory(lib/glad)
 find_package(glfw3 CONFIG REQUIRED)
-find_package(Boost REQUIRED filesystem)
+#find_package(Boost REQUIRED filesystem)
 endif()
 #add_subdirectory(lib/imgui)
 
-add_executable(${EXCE_NAME} ${SRC})
-target_link_libraries(${EXCE_NAME}  PRIVATE glm)
+add_executable(${EXCE_NAME} 
+    ${SRC} 
+    ${IMGUI_SRC}
+    ${IMPLOT_SRC}
+    ) 
 #target_link_libraries(${EXCE_NAME}  PRIVATE imgui)
 if(BUILDWASM)
 
 else()
     #target_link_libraries(${EXCE_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
+#target_link_libraries(${EXCE_NAME}  PRIVATE glm)
     target_link_libraries(${EXCE_NAME}  PRIVATE GLEW::GLEW)
     target_link_libraries(${EXCE_NAME}  PRIVATE glfw)
-    target_link_libraries(${EXCE_NAME} PRIVATE Boost::boost Boost::filesystem)
-    target_link_libraries(${EXCE_NAME}  PRIVATE imgui::imgui)
-    target_link_libraries(${EXCE_NAME} PRIVATE implot::implot)
-endif()
+ 
+   endif()
+  
 target_link_libraries(${EXCE_NAME}  PRIVATE Operator_OverLoading)
  
 if(BUILDWASM)
-set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -s  USE_WEBGL2=2 -s USE_GLFW=3   -s WASM=1 -std=c++17 --shell-file html/shell_minimal.html")
+set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -s  USE_WEBGL2=2 -s USE_GLFW=3   -s WASM=1 -std=c++11 --shell-file html/shell_minimal.html")
 else()
 #set_property(TARGET ${EXCE_NAME}   PROPERTY CXX_STANDARD 11)
   file(COPY "res" DESTINATION ${CMAKE_BINARY_DIR})
