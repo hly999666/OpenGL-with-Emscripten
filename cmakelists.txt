@@ -6,31 +6,30 @@ set(EXCE_NAME "opengl_test_0")
 #find_package(glm CONFIG REQUIRED)
 set(USE_IMGUI ON)
 set(USE_IMPLOT ON)
-set(SRC src/main_imgui_test.cpp)
+set(SRC src/main_gl_c6_Shaders.cpp)
 
 #include my files
 set(SRC 
     "${SRC}"
      src/lyh_gl_lib/gl_helper.hpp
+     src/lyh_gl_lib/shader.hpp
 )
 if(USE_IMGUI)
    find_package(imgui CONFIG REQUIRED)
-
-
 endif()
 
 if(USE_IMPLOT)
-     find_package(implot CONFIG REQUIRED)
+   find_package(implot CONFIG REQUIRED)
 endif()
-add_subdirectory(lib/glm)
+add_subdirectory(externs/glm)
 add_subdirectory(lib/05_dir)
 message("${SRC}")
 #find_package(OpenGL REQUIRED)
 if(BUILDWASM)
 set(CMAKE_EXECUTABLE_SUFFIX ".html")
 else()
-#find_package(GLEW REQUIRED)
-add_subdirectory(lib/glad)
+find_package(GLEW REQUIRED)
+#add_subdirectory(lib/glad)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(Boost REQUIRED filesystem)
 endif()
@@ -42,8 +41,8 @@ target_link_libraries(${EXCE_NAME}  PRIVATE glm)
 if(BUILDWASM)
 
 else()
-#target_link_libraries(${EXCE_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
-   #target_link_libraries(${EXCE_NAME}  PRIVATE GLEW::GLEW)
+    #target_link_libraries(${EXCE_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
+    target_link_libraries(${EXCE_NAME}  PRIVATE GLEW::GLEW)
     target_link_libraries(${EXCE_NAME}  PRIVATE glfw)
     target_link_libraries(${EXCE_NAME} PRIVATE Boost::boost Boost::filesystem)
     target_link_libraries(${EXCE_NAME}  PRIVATE imgui::imgui)

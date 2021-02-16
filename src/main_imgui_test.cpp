@@ -1,14 +1,16 @@
 
  
 #include <GL/glew.h>      
- 
+#include <glfw/glfw3.h>
 #include<imgui.h>
 #include<imgui_impl_opengl3.h>
 #include<imgui_impl_glfw.h>
 #include<implot.h>
+
+
 #include <stdio.h>
 
-#include <glfw/glfw3.h>
+
 #ifndef GL_HELPER_H
 #include "./lyh_gl_lib/gl_helper.hpp"
 
@@ -40,7 +42,9 @@ int main(int, char**)
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); 
     bool err = glewInit() != GLEW_OK;
- 
+    if (err) {
+        std::cout << "GLEW_ERR" << std::endl;
+    }
 
  
     //my code 
@@ -87,7 +91,7 @@ int main(int, char**)
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImPlot::CreateContext();
+    //ImPlot::CreateContext();
  
       
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -123,13 +127,13 @@ int main(int, char**)
             float x_data[10] = {1,2,3,4,5,6,7,8,9,10};
             float y_data[10] = { 1,2,3,4,5,6,7,8,9,10 };
 
-            ImGui::Begin("Plot_windows");
-            if (ImPlot::BeginPlot("Plot_1")) {
+         /*   ImGui::Begin("Plot_windows");
+            if (ImPlot::BeginPlot("Plot_1","x","y" )) {
           
                 ImPlot::PlotLine("Line_Plot_1", x_data, y_data, 10);
                  ImPlot::EndPlot();
             }
-            ImGui::End();
+            ImGui::End();*/
         ImGui::Render();
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
@@ -147,7 +151,7 @@ int main(int, char**)
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
 
-    ImPlot::DestroyContext();
+    //ImPlot::DestroyContext();
     ImGui::DestroyContext();
 
     glfwDestroyWindow(window);

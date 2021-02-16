@@ -11,4 +11,4 @@ emcc main.cpp -o ./build.emscripten/index.html -s USE_WEBGL2=2 -s USE_GLFW=3 -s 
  emcc string_example.cpp -o string_example.html  -s EXTRA_EXPORTED_RUNTIME_METHODS="['getValue']"
 
 
- imgui[opengl3-glad-binding,glfw-binding]:x64-windows
+ imgui[opengl3-glew-binding,glfw-binding]:x64-windows
