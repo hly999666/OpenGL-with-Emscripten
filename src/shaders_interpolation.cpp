@@ -197,14 +197,15 @@ int main()
      float x_data[10] = { 1,2,3,4,5,6,7,8,9,10 };
         float y_data[10] = { 1,2,3,4,5,6,7,8,9,10 };
         auto name = "Plot_windows";
-        ImGui::Begin(name);
-        ImPlot::SetNextPlotLimits(0,12,0,12);
-          if (ImPlot::BeginPlot("Plot_1", "x", "y")) {
-          
-            ImPlot::PlotLine("Line_Plot_1", x_data, y_data, 10);
-            ImPlot::EndPlot();
-        }
-          ImGui::End(); 
+        ImPlot::ShowDemoWindow();
+        //ImGui::Begin(name);
+        //ImPlot::SetNextPlotLimits(0,12,0,12);
+        //  if (ImPlot::BeginPlot("Plot_1", "x", "y")) {
+        //  
+        //    ImPlot::PlotLine("Line_Plot_1", x_data, y_data, 10);
+        //    ImPlot::EndPlot();
+        //}
+        //  ImGui::End(); 
         ImGui::Render();
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);

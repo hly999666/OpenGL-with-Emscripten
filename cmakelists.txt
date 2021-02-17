@@ -6,7 +6,7 @@ set(EXCE_NAME "opengl_test_0")
 #find_package(glm CONFIG REQUIRED)
 set(USE_IMGUI ON)
  set(USE_IMPLOT ON)
-set(SRC src/shaders_interpolation.cpp)
+set(SRC src/main_gl_c7_Textures.cpp)
 
 #include my files
 set(SRC 
@@ -45,7 +45,7 @@ else()
 find_package(GLEW REQUIRED)
 #add_subdirectory(lib/glad)
 find_package(glfw3 CONFIG REQUIRED)
-#find_package(Boost REQUIRED filesystem)
+find_package(Boost REQUIRED filesystem)
 endif()
 #add_subdirectory(lib/imgui)
 
@@ -62,7 +62,7 @@ else()
 #target_link_libraries(${EXCE_NAME}  PRIVATE glm)
     target_link_libraries(${EXCE_NAME}  PRIVATE GLEW::GLEW)
     target_link_libraries(${EXCE_NAME}  PRIVATE glfw)
- 
+    target_link_libraries(${EXCE_NAME} PRIVATE Boost::boost Boost::filesystem)
    endif()
   
 target_link_libraries(${EXCE_NAME}  PRIVATE Operator_OverLoading)

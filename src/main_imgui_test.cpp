@@ -13,7 +13,6 @@
 
 #ifndef GL_HELPER_H
 #include "./lyh_gl_lib/gl_helper.hpp"
-
 #endif
  
 
