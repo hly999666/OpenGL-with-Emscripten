@@ -11,20 +11,24 @@
 #include <iostream>
 #include<string>
 #ifndef GL_HELPER_H
-#include "gl_helper.hpp""
+#include "gl_helper.hpp"
 #endif
 #ifndef SHADER_H
 #include  "shader.hpp"
 #endif
 #include  "Optr_ol.hpp"
 #ifdef __EMSCRIPTEN__
-#define GLM_FORCE_AVX  
+#define GLM_FORCE_SSE3 
 #else
 #define GLM_FORCE_AVX2  
 #endif
 #include  "../externs/glm/glm/glm.hpp"
 #include "../externs/glm/glm/gtc/matrix_transform.hpp" 
 #include "../externs/glm/glm/gtc/type_ptr.hpp" 
+
+//#include  <glm/glm.hpp>
+//#include  <glm/gtc/matrix_transform.hpp>
+//#include  <glm/gtc/type_ptr.hpp>
 void processInput(GLFWwindow* window)
 
 {

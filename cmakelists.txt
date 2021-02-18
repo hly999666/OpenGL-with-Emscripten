@@ -7,10 +7,20 @@ set(EXCE_NAME "opengl_test_0")
 
 #set(GLM_DIR  "${CMAKE_SOURCE_DIR}externs/glm/cmake/glm")
 set(USE_IMGUI ON)
- set(USE_IMPLOT ON)
+set(USE_IMPLOT ON)
+
+if(BUILDWASM)
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/externs/")
+#set(GLM_DIR "${CMAKE_SOURCE_DIR}/externs/glm/cmake/glm")
+#message("${GLM_DIR}")
+endif()
+
+#find_package(GLM REQUIRED)
+#message(STATUS "GLM included at ${GLM_INCLUDE_DIR}")
 set(SRC 
 #src/main_gl_c7_Textures.cpp
-src/main_gl_c8_Transformations.cpp
+#src/main_gl_c8_Transformations.cpp
+src/main_fractalTree2D_Basic.cpp
 )
 
 #include my files
@@ -38,11 +48,11 @@ set(IMPLOT_SRC
     externs/implot/implot_items.cpp
 ) 
 endif()
-#add_subdirectory(externs/glm)
+#add_subdirectory(externs/glm/glm)
 
 message("${SRC}")
 #find_package(OpenGL REQUIRED)
-find_package(GLM REQUIRED)
+
 if(BUILDWASM)
 set(CMAKE_EXECUTABLE_SUFFIX ".html")
 else()
@@ -54,6 +64,7 @@ endif()
 #add_subdirectory(lib/imgui)
 add_subdirectory(lib/05_dir)
 add_subdirectory(lib/lyh_gl_lib)
+add_subdirectory(lib/DDON)
 add_executable(${EXCE_NAME} 
     ${SRC} 
     ${IMGUI_SRC}
@@ -70,12 +81,13 @@ else()
     target_link_libraries(${EXCE_NAME}  PRIVATE glfw)
     target_link_libraries(${EXCE_NAME} PRIVATE Boost::boost Boost::filesystem)
    endif()
-  
+#target_link_libraries(${EXCE_NAME}  PRIVATE glm)  
 target_link_libraries(${EXCE_NAME}  PRIVATE Operator_OverLoading)
 target_link_libraries(${EXCE_NAME}  PRIVATE lyh_gl_lib)
+target_link_libraries(${EXCE_NAME}  PRIVATE DDoN)
  #target_link_libraries(${EXCE_NAME}  PRIVATE glm)
 if(BUILDWASM)
-set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -s  USE_WEBGL2=2 -s USE_GLFW=3 -msimd128  -s WASM=1 -std=c++11  --shell-file html/shell_minimal.html")
+set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O3  -msimd128 -s  USE_WEBGL2=2 -s USE_GLFW=3  -s WASM=1 -std=c++11  --shell-file html/shell_minimal.html")
 else()
 #set_property(TARGET ${EXCE_NAME}   PROPERTY CXX_STANDARD 11)
   file(COPY "res" DESTINATION ${CMAKE_BINARY_DIR})

@@ -2,17 +2,17 @@
  
 #include <GL/glew.h>      
 #include <glfw/glfw3.h>
-#include<imgui.h>
-#include<imgui_impl_opengl3.h>
-#include<imgui_impl_glfw.h>
-#include<implot.h>
+#include "../externs/imgui/imgui.h"
+#include"../externs/imgui/imgui_impl_opengl3.h" 
+#include"../externs/imgui/imgui_impl_glfw.h" 
+#include"../externs/implot/implot.h" 
 
 
 #include <stdio.h>
 
 
 #ifndef GL_HELPER_H
-#include  <lyh_gl_lib/gl_helper.hpp>
+#include  "gl_helper.hpp"
 #endif
  
 

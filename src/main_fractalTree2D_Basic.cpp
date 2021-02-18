@@ -8,11 +8,16 @@
 #include <GLFW/glfw3.h>
 #include <functional>
 #include <iostream>
-
+#ifdef __EMSCRIPTEN__
+#define GLM_FORCE_SIMD_AVX  
+#else
+#define GLM_FORCE_AVX2  
+#endif
 #include "../externs/imgui/imgui.h"
 #include "../externs/imgui/imgui_impl_opengl3.h"
 #include "../externs/imgui/imgui_impl_glfw.h"
 #include "../externs/implot/implot.h"
+#include "Plant2D.hpp"
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
@@ -105,7 +110,7 @@ int main()
  
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(1920, 1080, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1920, 1080, "Basic_Fractal_Tree2D", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -183,6 +188,10 @@ int main()
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 
+    float x_data[6] = { 1,2,2,3,4,6 };
+    float y_data[6] = { 1,2,2,3,4,6 };
+    std::vector<float>x_pos; std::vector<float>y_pos;
+    float theta = 80.0f;    float s = 0.577;
     loop = [&] {
 
         glfwPollEvents();
@@ -200,18 +209,27 @@ int main()
         //    show_another_window = false;
         //ImGui::End();
 
-     float x_data[6] = { 1,2,2,3,4,6 };
-        float y_data[6] = { 1,2,2,3,4,6 };
+      
+        //ImPlot::ShowDemoWindow();
+      
+        ImGui::SetNextWindowPos({ 32,50 });
+        ImGui::SetNextWindowSize({ 256,128 });
+        ImGui::Begin("Control");
+        ImGui::SliderFloat("theta", &theta,0,180);
+        ImGui::SliderFloat("S", &s, 0, sqrt(2)*0.5);
+        ImGui::End();
+        ImGui::SetNextWindowPos({ 320,50 });
+        ImGui::SetNextWindowSize({ 1024,1024 });
+
         auto name = "Plot_windows";
         ImPlot::GetStyle().AntiAliasedLines = true;
-        ImPlot::ShowDemoWindow();
-        //ImGui::SetNextWindowSize({ 512,512 });
-        ImGui::Begin("S_Line_Plot");
-        ImPlot::SetNextPlotLimits(-5,5,-5,5);
-        if (ImPlot::BeginPlot("Plot_1", "x", "y", {512,512})) {
-          
-           drawLineSegments( x_data, y_data, 6);
-          ImPlot::EndPlot();
+        ImGui::Begin("Tree_Line_Plot");
+        ImPlot::SetNextPlotLimits(-5,5,0,10);
+        if (ImPlot::BeginPlot("Plot_1", "x", "y", {1024,1024 })) {
+            x_pos.clear(); y_pos.clear();
+            DDoN::fractalTree2D_Basic(glm::radians(theta)*0.5, s, x_pos, y_pos);
+           drawLineSegments(x_pos.data(), y_pos.data(), x_pos.size());
+            ImPlot::EndPlot();
         }
          ImGui::End(); 
         ImGui::Render();

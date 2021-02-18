@@ -19,7 +19,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../../externs/stb/stb_image.h"
 #endif
-
+#include  "../externs/glm/glm/glm.hpp"
+#include "../externs/glm/glm/gtc/matrix_transform.hpp"
+#include "../externs/glm/glm/gtc/type_ptr.hpp"
 namespace  lyh {
 	namespace  gl_helper {
 
