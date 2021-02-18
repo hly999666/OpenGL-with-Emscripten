@@ -11,10 +11,10 @@
 #include <iostream>
 #include<string>
 #ifndef GL_HELPER_H
-#include "./lyh_gl_lib/gl_helper.hpp"
+#include "<lyh_gl_lib/gl_helper.hpp>"
 #endif
 #ifndef SHADER_H
-#include "./lyh_gl_lib/shader.hpp"
+#include "<lyh_gl_lib/shader.hpp>"
 #endif
 void processInput(GLFWwindow* window)
 

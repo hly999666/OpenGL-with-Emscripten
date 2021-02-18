@@ -7,7 +7,7 @@
 #endif
 #include <GLFW/glfw3.h>
 #include <functional>
- 
+
 #include <iostream>
 #include<string>
 #ifndef GL_HELPER_H
@@ -17,8 +17,14 @@
 #include  "shader.hpp"
 #endif
 #include  "Optr_ol.hpp"
-
- 
+#ifdef __EMSCRIPTEN__
+#define GLM_FORCE_AVX  
+#else
+#define GLM_FORCE_AVX2  
+#endif
+#include  "../externs/glm/glm/glm.hpp"
+#include "../externs/glm/glm/gtc/matrix_transform.hpp" 
+#include "../externs/glm/glm/gtc/type_ptr.hpp" 
 void processInput(GLFWwindow* window)
 
 {
@@ -27,15 +33,19 @@ void processInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, true);
 
 }
-const int width = 1920;
-const int height = 1080;
- 
+const int width = 1024;
+const int height = 1024;
+
 std::function<void()> render_loop;
 void main_loop() { render_loop(); }
 int main()
 
 {
-
+	glm::vec4 v1(1, 2, 3, 4);
+	glm::vec4 v2(1, 2, 3, 4);
+	glm::mat4 mat1(1.0f);
+	auto v3 =(v1+v2);
+	std::cout << v3.x << std::endl;
 	const char* glsl_version = "#version 300 es";
 	//init glfw
 	glfwInit();
@@ -62,7 +72,11 @@ int main()
 
 	}
 	glfwMakeContextCurrent(window);
-	//init with glad
+	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height)
+	{
+ 
+		glViewport(0, 0, width, height);
+	});
  
 
 #ifdef __EMSCRIPTEN__
@@ -74,10 +88,13 @@ int main()
 #endif
 	glfwSwapInterval(1);
 
-	Shader shader_1("/res/shader/basic_c7_texture.glsl");
+	lyh::Shader shader_1("/res/shader/basic_c8_Transformations.glsl");
 
 	//setup uniform
 	//int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+
+	//set up uniform 
+	unsigned int transformLoc = glGetUniformLocation(shader_1.ID, "transform");
 
 	//setup geometry
 
@@ -91,14 +108,14 @@ int main()
 
 
 
-	 
+
 
 	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height)
 		{
-		glViewport(0, 0, width, height);
+			glViewport(0, 0, width, height);
 		});
 
- 
+
 	char str_buf[128];
 	float fval = 0;
 
@@ -125,30 +142,37 @@ int main()
 		unsigned int tex_index = 0;
 		glActiveTexture(GL_TEXTURE0 + tex_index);
 		glBindTexture(GL_TEXTURE_2D, tex_1);
-	 
-			glUniform1i(glGetUniformLocation(shader_1.ID, "texture1"), tex_index);
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT,0);
-			//must unbind all before draw UI
-			glBindVertexArray(NULL);
-			glUseProgram(NULL);
-			glfwSwapBuffers(window);
-		};
+
+		glUniform1i(glGetUniformLocation(shader_1.ID, "texture1"), tex_index);
+		//set transform
+		 
+		auto m_t = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, -0.5f, 0.0f));
+		auto m_r = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+		auto transform = m_t * m_r;
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//must unbind all before draw UI
+		glBindVertexArray(NULL);
+		glUseProgram(NULL);
+		glfwSwapBuffers(window);
+	};
 #ifdef __EMSCRIPTEN__
-		emscripten_set_main_loop(main_loop, 0, true);
+	emscripten_set_main_loop(main_loop, 0, true);
 #else
-		while (!glfwWindowShouldClose(window))main_loop();
+	while (!glfwWindowShouldClose(window))main_loop();
 #endif
 
 
-		// Cleanup
-		//cleanup imgui
+	// Cleanup
+	//cleanup imgui
 
 
-		//cleanup glfw
-		glfwDestroyWindow(window);
-		glfwTerminate();
-		exit(EXIT_SUCCESS);
+	//cleanup glfw
+	glfwDestroyWindow(window);
+	glfwTerminate();
+	exit(EXIT_SUCCESS);
 
-		return 0;
+	return 0;
 
-		};
+};

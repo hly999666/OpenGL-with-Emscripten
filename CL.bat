@@ -12,3 +12,5 @@ emcc main.cpp -o ./build.emscripten/index.html -s USE_WEBGL2=2 -s USE_GLFW=3 -s 
 
 
  imgui[opengl3-glew-binding,glfw-binding]:x64-windows
+
+CMAKE DCMAKE_TOOLCHAIN_FILE=P:/vcpkg/scripts/buildsystems/vcpkg.cmake  .. 

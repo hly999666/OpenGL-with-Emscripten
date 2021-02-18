@@ -4,15 +4,18 @@ project(opengl_test)
 set(EXCE_NAME "opengl_test_0")
 #set(glm_DIR "${PROJECT_SOURCE_DIR}/lib/glm/cmake/glm")
 #find_package(glm CONFIG REQUIRED)
+
+#set(GLM_DIR  "${CMAKE_SOURCE_DIR}externs/glm/cmake/glm")
 set(USE_IMGUI ON)
  set(USE_IMPLOT ON)
-set(SRC src/main_gl_c7_Textures.cpp)
+set(SRC 
+#src/main_gl_c7_Textures.cpp
+src/main_gl_c8_Transformations.cpp
+)
 
 #include my files
 set(SRC 
     "${SRC}"
-     src/lyh_gl_lib/gl_helper.hpp
-     src/lyh_gl_lib/shader.hpp
 )
 if(USE_IMGUI)
 set(IMGUI_SRC
@@ -36,9 +39,10 @@ set(IMPLOT_SRC
 ) 
 endif()
 #add_subdirectory(externs/glm)
-add_subdirectory(lib/05_dir)
+
 message("${SRC}")
 #find_package(OpenGL REQUIRED)
+find_package(GLM REQUIRED)
 if(BUILDWASM)
 set(CMAKE_EXECUTABLE_SUFFIX ".html")
 else()
@@ -48,30 +52,36 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(Boost REQUIRED filesystem)
 endif()
 #add_subdirectory(lib/imgui)
-
+add_subdirectory(lib/05_dir)
+add_subdirectory(lib/lyh_gl_lib)
 add_executable(${EXCE_NAME} 
     ${SRC} 
     ${IMGUI_SRC}
     ${IMPLOT_SRC}
     ) 
+
 #target_link_libraries(${EXCE_NAME}  PRIVATE imgui)
 if(BUILDWASM)
 
 else()
     #target_link_libraries(${EXCE_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
-#target_link_libraries(${EXCE_NAME}  PRIVATE glm)
+    #target_link_libraries(${EXCE_NAME}  PRIVATE glm)
     target_link_libraries(${EXCE_NAME}  PRIVATE GLEW::GLEW)
     target_link_libraries(${EXCE_NAME}  PRIVATE glfw)
     target_link_libraries(${EXCE_NAME} PRIVATE Boost::boost Boost::filesystem)
    endif()
   
 target_link_libraries(${EXCE_NAME}  PRIVATE Operator_OverLoading)
- 
+target_link_libraries(${EXCE_NAME}  PRIVATE lyh_gl_lib)
+ #target_link_libraries(${EXCE_NAME}  PRIVATE glm)
 if(BUILDWASM)
-set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -s  USE_WEBGL2=2 -s USE_GLFW=3   -s WASM=1 -std=c++11 --shell-file html/shell_minimal.html")
+set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -s  USE_WEBGL2=2 -s USE_GLFW=3 -msimd128  -s WASM=1 -std=c++11  --shell-file html/shell_minimal.html")
 else()
 #set_property(TARGET ${EXCE_NAME}   PROPERTY CXX_STANDARD 11)
   file(COPY "res" DESTINATION ${CMAKE_BINARY_DIR})
+
+ target_compile_options(${EXCE_NAME} PRIVATE -mavx2)
+
 endif()
 
 

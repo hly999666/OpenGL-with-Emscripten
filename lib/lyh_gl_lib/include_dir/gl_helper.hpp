@@ -1,3 +1,5 @@
+#ifndef GL_HELPER_H
+#define GL_HELPER_H
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #define GL_GLEXT_PROTOTYPES
@@ -12,12 +14,11 @@
 #include <sstream>
 #include <string>
 #include <fstream>
+
 #ifndef STBI_INCLUDE_STB_IMAGE_H
 #define STB_IMAGE_IMPLEMENTATION
-#include "../../externs/stb/stb_image.h"
+#include "../../../externs/stb/stb_image.h"
 #endif
-#ifndef GL_HELPER_H
-#define GL_HELPER_H
 
 namespace  lyh {
 	namespace  gl_helper {

@@ -29,6 +29,7 @@
 *.out
 *.app
 *.zip
+*.cmake
 /build
 /build.emscripten
 /wasm_code
@@ -36,7 +37,6 @@
 /node_modules
 /CMakeFiles
 /out
-/lib
 /.vs
-/externs/glad
-/externs/glm
+/externs
+

@@ -1,2 +1,0 @@
-E:\Program\emsdk\upstream\emscripten\emar.bat qc libOperator_OverLoading.a CMakeFiles/Operator_OverLoading.dir/src_dir/Optr_ol.cpp.o
-E:\Program\emsdk\upstream\emscripten\emranlib.bat libOperator_OverLoading.a
