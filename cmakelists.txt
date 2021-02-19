@@ -19,8 +19,8 @@ endif()
 #message(STATUS "GLM included at ${GLM_INCLUDE_DIR}")
 set(SRC 
 #src/main_gl_c7_Textures.cpp
-#src/main_gl_c8_Transformations.cpp
-src/main_fractalTree2D_Basic.cpp
+src/main_gl_c9_CoordinateSystems.cpp
+#src/main_fractalTree2D_Basic.cpp
 )
 
 #include my files
@@ -92,7 +92,7 @@ else()
 #set_property(TARGET ${EXCE_NAME}   PROPERTY CXX_STANDARD 11)
   file(COPY "res" DESTINATION ${CMAKE_BINARY_DIR})
 
- target_compile_options(${EXCE_NAME} PRIVATE -mavx2)
+ target_compile_options(${EXCE_NAME} PRIVATE -mavx)
 
 endif()
 

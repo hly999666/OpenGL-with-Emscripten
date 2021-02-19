@@ -101,7 +101,7 @@ int main()
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();  
-    
+ 
     const char* glsl_version = "#version 300 es";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -168,8 +168,8 @@ int main()
 
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        glBindVertexArray(NULL);
-        glUseProgram(NULL);
+        glBindVertexArray((GLuint)NULL);
+        glUseProgram((GLuint)NULL);
     };
    //IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -252,20 +252,15 @@ int main()
         main_loop();
 #endif
 
-    // optional: de-allocate all resources once they've outlived their purpose:
-    // ------------------------------------------------------------------------
+    //clearup
+    ImPlot::DestroyContext();
+    ImGui::DestroyContext();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui_ImplOpenGL3_Shutdown();
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderProgram);
-
-    // glfw: terminate, clearing all previously allocated GLFW resources.
-    // ------------------------------------------------------------------
-
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImPlot::DestroyContext();
-    ImGui::DestroyContext();
 
     glfwTerminate();
     return 0;

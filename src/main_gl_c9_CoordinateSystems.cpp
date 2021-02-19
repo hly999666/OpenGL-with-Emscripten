@@ -18,7 +18,7 @@
 #endif
 #ifndef SHADER_H
 #include  "shader.hpp"
-#endif
+#endif  
 #include  "Optr_ol.hpp"
 #ifdef __EMSCRIPTEN__
 #define GLM_FORCE_SSE3 
@@ -27,7 +27,8 @@
 #endif
 #include  "../externs/glm/glm/glm.hpp"
 #include "../externs/glm/glm/gtc/matrix_transform.hpp" 
-#include "../externs/glm/glm/gtc/type_ptr.hpp"
+#include "../externs/glm/glm/gtc/type_ptr.hpp" 
+
 //#include  <glm/glm.hpp>
 //#include  <glm/gtc/matrix_transform.hpp>
 //#include  <glm/gtc/type_ptr.hpp>
@@ -39,19 +40,14 @@ void processInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, true);
 
 }
-const int width = 1024;
-const int height = 1024;
+const int width = 800;
+const int height = 600;
 
 std::function<void()> render_loop;
 void main_loop() { render_loop(); }
 int main()
 
-{
-	glm::vec4 v1(1, 2, 3, 4);
-	glm::vec4 v2(1, 2, 3, 4);
-	glm::mat4 mat1(1.0f);
-	auto v3 =(v1+v2);
-	std::cout << v3.x << std::endl;
+{ 
 	const char* glsl_version = "#version 300 es";
 	//init glfw
 	glfwInit();
@@ -67,20 +63,15 @@ int main()
 	//init window
 	GLFWwindow* window = glfwCreateWindow(width, height, "Test_1", NULL, NULL);
 	if (window == NULL)
-
 	{
-
 		std::cout << "Failed to create GLFW window" << std::endl;
-
 		glfwTerminate();
-
 		return -1;
-
 	}
 	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height)
+	glfwSetFramebufferSizeCallback(window, 
+		[](GLFWwindow* window, int width, int height)
 	{
- 
 		glViewport(0, 0, width, height);
 	});
  
@@ -94,32 +85,33 @@ int main()
 #endif
 	glfwSwapInterval(1);
 
-	lyh_gl::Shader shader_1("/res/shader/basic_c8_Transformations.glsl");
+	lyh_gl::Shader shader_1("/res/shader/basic_c9_CoordinateSystems.glsl");
 
-	//setup uniform
-	//int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-
-	//set up uniform 
-	unsigned int transformLoc = glGetUniformLocation(shader_1.ID, "transform");
-
-	//setup geometry
+ 
 
 	unsigned int VBO, VAO, EBO;
 
-	lyh_gl::geometry::buildRect(VBO, VAO, EBO);
+	lyh_gl::geometry::buildBox(VBO, VAO, EBO);
 
 	auto tex_1 = lyh_gl::helper::loadTexture("/res/texture/cat_2.jpg");
-	//set up texture
+ 
+	glUniform1i(glGetUniformLocation(shader_1.ID, "texture1"), 0);
+
+	glm::vec3 cubePositions[] = {
+	glm::vec3(0.0f,  0.0f,  0.0f),
+	glm::vec3(2.0f,  5.0f, -15.0f),
+	glm::vec3(-1.5f, -2.2f, -2.5f),
+	glm::vec3(-3.8f, -2.0f, -12.3f),
+	glm::vec3(2.4f, -0.4f, -3.5f),
+	glm::vec3(-1.7f,  3.0f, -7.5f),
+	glm::vec3(1.3f, -2.0f, -2.5f),
+	glm::vec3(1.5f,  2.0f, -2.5f),
+	glm::vec3(1.5f,  0.2f, -1.5f),
+	glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
 
 
 
-
-
-
-	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height)
-		{
-			glViewport(0, 0, width, height);
-		});
 
 
 	char str_buf[128];
@@ -129,35 +121,50 @@ int main()
 		glfwPollEvents();
 		processInput(window);
 
+		glViewport(0, 0, width, height);
+				
+		glEnable(GL_DEPTH_TEST);
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	 
 		//glUseProgram(shaderProgram);
 		shader_1.use();
-		glBindVertexArray(VAO);
+		//glBindVertexArray(VAO);
 		//setup viewport
-		glViewport(0, 0, width, height);
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-
-		glClear(GL_COLOR_BUFFER_BIT);
 
 		//set uniform 
 		/*float timeValue = glfwGetTime();
 		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 		 glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);*/
 
-		unsigned int tex_index = 0;
-		glActiveTexture(GL_TEXTURE0 + tex_index);
+		//shader_1.setTex("texture1", tex_1,0);
+		//set transform
+		// make sure to initialize matrix to identity matrix first
+		glm::mat4 view = glm::mat4(1.0f); 
+		glm::mat4 projection = glm::mat4(1.0f);
+		projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		shader_1.setMat4("projection", projection);
+		shader_1.setMat4("view", view);
+
+		glActiveTexture(GL_TEXTURE0 + 0);
 		glBindTexture(GL_TEXTURE_2D, tex_1);
 
-		glUniform1i(glGetUniformLocation(shader_1.ID, "texture1"), tex_index);
-		//set transform
-		 
-		auto m_t = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, -0.5f, 0.0f));
-		auto m_r = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-		auto transform = m_t * m_r;
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+		glBindVertexArray(VAO);
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			// calculate the model matrix for each object and pass it to shader before drawing
+ 
+			auto m_t = glm::translate(glm::mat4(1.0f), cubePositions[i]);
+			float angle = 20.0f * i;
+			auto m_r = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			auto model = m_t * m_r;
+			shader_1.setMat4("model", model);
 
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 		//must unbind all before draw UI
 		glBindVertexArray(NULL);
 		glUseProgram(NULL);
@@ -171,10 +178,13 @@ int main()
 
 
 	// Cleanup
-	//cleanup imgui
-
+	//cleanup gl
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
 
 	//cleanup glfw
+
+
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
