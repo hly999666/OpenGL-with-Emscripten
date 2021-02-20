@@ -104,7 +104,7 @@ int main()
 
 	lyh_gl::geometry::buildRect(VBO, VAO, EBO);
 	//auto tex_1 = 0;
-	auto tex_1 = lyh_gl::helper::loadTexture("cat_2.jpg",window);
+  	lyh_gl::helper::texture_loader tex_1{ "cat_2.jpg" };
 	//set up texture
 
 
@@ -116,18 +116,18 @@ int main()
 		{
 			glViewport(0, 0, width, height);
 		});
-	int thread_count = 0;
-    t1= std::thread(thread_fun, std::ref(thread_count)); t1.detach();
+	//int thread_count = 0;
+ //   t1= std::thread(thread_fun, std::ref(thread_count)); t1.detach();
 
 	char str_buf[128];
 	float fval = 0;
 	int frame_count = 0;
 	render_loop = [&] {
-		if (frame_count % 100 == 0) {
-			std::cout <<"render_loop :"<< frame_count << std::endl;
-			std::cout << "render_loop : thread_count" << thread_count << std::endl;
-		}
-		frame_count++;
+		//if (frame_count % 100 == 0) {
+		//	std::cout <<"render_loop :"<< frame_count << std::endl;
+		//	std::cout << "render_loop : thread_count" << thread_count << std::endl;
+		//}
+		//frame_count++;
 		glfwMakeContextCurrent(window);
 		glfwPollEvents();
 		processInput(window);
@@ -149,8 +149,9 @@ int main()
 		shader_1.setFloat("inputColor", _val);
 
 		 unsigned int tex_index = 0;
+		 tex_1.wait_for(1);
 		glActiveTexture(GL_TEXTURE0 + tex_index);
-		glBindTexture(GL_TEXTURE_2D, tex_1);
+		glBindTexture(GL_TEXTURE_2D, tex_1.texture_id);
 
 		glUniform1i(glGetUniformLocation(shader_1.ID, "texture1"), tex_index); 
 		//must unbind all before draw UI

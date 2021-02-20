@@ -16,7 +16,10 @@
 #include <sstream>
 #include <string>
 #include <fstream>
-
+#include <thread>
+#include <chrono>
+#include <future>
+#include <functional>
 #ifndef STBI_INCLUDE_STB_IMAGE_H
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../../externs/stb/stb_image.h"
@@ -116,21 +119,22 @@ namespace  lyh_gl::helper {
 			if (out_vs.size() == 0 || out_fs.size() == 0) return false;
 			else return true;
 		}
-		void loadTexture_async(const std::string f_path, GLuint  texture, GLFWwindow* window,GLenum input_format = GL_RGB, GLenum input_type = GL_UNSIGNED_BYTE) {
-			
-			int width, height, nrChannels;
-			stbi_set_flip_vertically_on_load(true);
-			unsigned char* data = stbi_load(f_path.c_str(), &width, &height, &nrChannels, 0);
+		struct texture_info {
+			unsigned  char* data{nullptr};
+			int width{0};
+			int height{ 0 };
+			int nrChannels{ 0 };
+			GLenum input_format{ GL_RGB };
+			GLenum input_type{ GL_UNSIGNED_BYTE };
+		};
+		void set_up_texture(texture_info tex_1_info, GLuint  texture, GLenum input_format = GL_RGB, GLenum input_type = GL_UNSIGNED_BYTE) {
+			auto data = tex_1_info.data; auto width = tex_1_info.width;	auto height = tex_1_info.height; auto nrChannels = tex_1_info.nrChannels;
+			input_format = tex_1_info.input_format; input_type = tex_1_info.input_type;
+
 			if (data)
 
 			{
-				 
-			   glfwMakeContextCurrent(window);
-              #ifdef __EMSCRIPTEN__
-               #else
-			   bool err = glewInit() != GLEW_OK;
-			   if (err)std::cout << "GLEW_ERR" << std::endl;
-              #endif
+
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, input_format, input_type, data);
 
 				glGenerateMipmap(GL_TEXTURE_2D);
@@ -141,8 +145,8 @@ namespace  lyh_gl::helper {
 
 				//clear up
 
-				 
-				stbi_image_free(data);
+
+				//stbi_image_free(data);
 				glBindTexture(GL_TEXTURE_2D, 0);
 				glFinish();
 				//glfwDestroyWindow(threadWin);
@@ -150,22 +154,34 @@ namespace  lyh_gl::helper {
 			}
 			else
 			{
-		 
-			    glfwMakeContextCurrent(window);
-               #ifdef __EMSCRIPTEN__
-               #else
-				bool err = glewInit() != GLEW_OK;
-				if (err)std::cout << "GLEW_ERR" << std::endl;
-                #endif 
+
+
 				glDeleteTextures(1, &texture);
 				glFinish();
-				stbi_image_free(data);
+				//stbi_image_free(data);
 				//glfwDestroyWindow(threadWin);
 				std::cout << "Failed to load texture" << std::endl;
 				//return 0;
 			}
+		};
+		void loadTexture_async(const std::string f_path, GLuint  texture,GLenum input_format = GL_RGB, GLenum input_type = GL_UNSIGNED_BYTE) {
+			
+	 
+			std::packaged_task<texture_info()> task([&] {
+				texture_info tex_1_info;
+				stbi_set_flip_vertically_on_load(true);
+				tex_1_info.data = stbi_load(f_path.c_str(), &tex_1_info.width, &tex_1_info.height, &tex_1_info.nrChannels, 0);
+				return tex_1_info;
+			});
+			auto f1 = task.get_future();  
+			std::thread task_td(std::move(task));
+			task_td.join();
+			auto tex_1_info = f1.get();
+
+
+			set_up_texture(tex_1_info, texture,   input_format, input_type);
 		}
-		unsigned int loadTexture(const std::string& path, GLFWwindow* window,GLenum input_format = GL_RGB, GLenum input_type = GL_UNSIGNED_BYTE) {
+		unsigned int loadTexture(const std::string& path,GLenum input_format = GL_RGB, GLenum input_type = GL_UNSIGNED_BYTE) {
 			
 			GLuint texture;
 			glGenTextures(1, &texture);
@@ -179,13 +195,68 @@ namespace  lyh_gl::helper {
 			f_path= cwd.string() + "/res/texture/" + path;
             #endif
 			//std::thread t1(loadTexture_async, f_path, texture, window, input_format, input_type);t1.detach();
-			loadTexture_async(f_path, texture, window,input_format, input_type);
+			loadTexture_async(f_path, texture, input_format, input_type);
 			return texture;
  
 		
 		
 		}
-
+		class texture_loader {
+		public:
+			 std::string path;
+			GLuint texture_id;
+			std::future<texture_info>future;
+			texture_info info;
+			std::string status{ "N/A" };
+			texture_loader(const std::string _path,const std::string mode="async") {
+			 
+				glGenTextures(1, &texture_id);
+				glBindTexture(GL_TEXTURE_2D, texture_id);
+			 
+			 
+          #ifdef __EMSCRIPTEN__
+				path = "res/texture/" + _path;
+         #else
+				auto cwd = boost::filesystem::current_path();
+				path = cwd.string() + "/res/texture/" + _path;
+         #endif
+				//std::thread t1(loadTexture_async, f_path, texture, window, input_format, input_type);t1.detach();
+				std::packaged_task<texture_info()> task([&] {
+					texture_info tex_1_info;
+					stbi_set_flip_vertically_on_load(true);
+					auto _p = path;
+					tex_1_info.data = stbi_load(path.c_str(), &tex_1_info.width, &tex_1_info.height, &tex_1_info.nrChannels, 0);
+					return tex_1_info;
+					});
+				future = task.get_future();
+			
+				if (mode == "async") {
+					std::thread task_td(std::move(task));
+					task_td.detach();
+					status = "loading";
+				}
+				else if (mode == "sync") {
+					//run task
+					task();
+				}
+				
+			    //task_td.join();
+			
+			};
+			~texture_loader() {
+				stbi_image_free(info.data);
+			}
+			void wait_for(unsigned int time_micro_s) {
+				if (status == "loaded")return;
+				auto f_status = future.wait_for(std::chrono::microseconds(time_micro_s));
+				if (f_status == std::future_status::ready) {
+					info = future.get();
+					set_up_texture(info, texture_id, info.input_format, info.input_type);
+					status = "loaded";
+				}
+			   }
+		 
+		};
 
 };
 #endif
