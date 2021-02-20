@@ -24,9 +24,9 @@
 #else
 #define GLM_FORCE_AVX2  
 #endif
-#include  "../externs/glm/glm/glm.hpp"
-#include "../externs/glm/glm/gtc/matrix_transform.hpp"
-#include "../externs/glm/glm/gtc/type_ptr.hpp"
+#include  "../../../externs/glm/glm/glm.hpp"
+#include "../../../externs/glm/glm/gtc/matrix_transform.hpp"
+#include "../../../externs/glm/glm/gtc/type_ptr.hpp"
 namespace lyh_gl::geometry {
  
 

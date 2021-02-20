@@ -18,18 +18,18 @@
 #else
 #define GLM_FORCE_AVX2  
 #endif
-#include  "../externs/glm/glm/glm.hpp"
-#include "../externs/glm/glm/gtc/matrix_transform.hpp"
-#include "../externs/glm/glm/gtc/type_ptr.hpp"
+#include  "../../../externs/glm/glm/glm.hpp"
+#include "../../../externs/glm/glm/gtc/matrix_transform.hpp"
+#include "../../../externs/glm/glm/gtc/type_ptr.hpp"
 namespace  lyh_gl {
 	class Shader
 
 	{
 	public:
-
+		bool isLoaded{ false };
 		unsigned int ID;
 		unsigned int texture_used_id{ 0 };
-		Shader(const std::string& path):texture_used_id(0){
+		Shader(const std::string& path):texture_used_id(0), isLoaded(false){
 			std::string vs_src;
 			std::string fs_src;
 			if (!helper::parseShader(path, vs_src, fs_src)) {

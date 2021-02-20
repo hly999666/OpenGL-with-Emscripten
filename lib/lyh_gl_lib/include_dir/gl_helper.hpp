@@ -1,9 +1,11 @@
 #ifndef GL_HELPER_H
 #define GL_HELPER_H
+
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
+#include<filesystem>
 #else
 #include <GL/glew.h>    
  #include <boost/filesystem.hpp>
@@ -24,9 +26,9 @@
 #else
 #define GLM_FORCE_AVX2  
 #endif
-#include  "../externs/glm/glm/glm.hpp"
-#include "../externs/glm/glm/gtc/matrix_transform.hpp"
-#include "../externs/glm/glm/gtc/type_ptr.hpp"
+#include  "../../../externs/glm/glm/glm.hpp"
+#include "../../../externs/glm/glm/gtc/matrix_transform.hpp"
+
 namespace  lyh_gl::helper {
 
 		unsigned int buildShaderProgram(const std::string& vertexShaderSource, const std::string& fragmentShaderSource) {
@@ -82,12 +84,21 @@ namespace  lyh_gl::helper {
 			return shaderProgram;
 		};
 		bool  parseShader(const std::string path, std::string& out_vs, std::string& out_fs) {
+			
+			std::ifstream fs; 
+           #ifdef __EMSCRIPTEN__
+			fs.open("res/shader/" + path);
+            #else
 			auto cwd = boost::filesystem::current_path();
-			std::ifstream fs; fs.open(cwd.string()+path);
+			fs.open(cwd.string() + "/res/shader/" + path);
+           #endif
+	
+			//std::ifstream fs; fs.open("/res/preload-file/shader/" + path);
 			std::string now_line;
 			std::stringstream ss_vs; std::stringstream ss_fs;
 			char now_t = 'n';
 			while (std::getline(fs, now_line)) {
+				//std::cout << now_line << std::endl;
 				if (now_line.find("//shader") != std::string::npos) {
 					if (now_line.find("vertex") != std::string::npos) {
 						now_t = 'v';
@@ -105,20 +116,22 @@ namespace  lyh_gl::helper {
 			if (out_vs.size() == 0 || out_fs.size() == 0) return false;
 			else return true;
 		}
-		unsigned int loadTexture(const std::string& path,GLenum input_format = GL_RGB, GLenum input_type = GL_UNSIGNED_BYTE) {
-			auto cwd = boost::filesystem::current_path();
-			auto f_path = cwd.string() + path;
+		void loadTexture_async(const std::string f_path, GLuint  texture, GLFWwindow* window,GLenum input_format = GL_RGB, GLenum input_type = GL_UNSIGNED_BYTE) {
+			
 			int width, height, nrChannels;
 			stbi_set_flip_vertically_on_load(true);
-			unsigned char* data = stbi_load(f_path.c_str(), &width, &height,&nrChannels, 0);
+			unsigned char* data = stbi_load(f_path.c_str(), &width, &height, &nrChannels, 0);
 			if (data)
 
 			{
-				unsigned int texture;
-		
-				glGenTextures(1, &texture);
-				glBindTexture(GL_TEXTURE_2D, texture);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, input_format,input_type, data);
+				 
+			   glfwMakeContextCurrent(window);
+              #ifdef __EMSCRIPTEN__
+               #else
+			   bool err = glewInit() != GLEW_OK;
+			   if (err)std::cout << "GLEW_ERR" << std::endl;
+              #endif
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, input_format, input_type, data);
 
 				glGenerateMipmap(GL_TEXTURE_2D);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -127,22 +140,49 @@ namespace  lyh_gl::helper {
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 				//clear up
-			
-				glBindTexture(GL_TEXTURE_2D, NULL);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-					GL_UNSIGNED_BYTE, data);
 
-				glGenerateMipmap(GL_TEXTURE_2D);
+				 
 				stbi_image_free(data);
 				glBindTexture(GL_TEXTURE_2D, 0);
-				return texture;
+				glFinish();
+				//glfwDestroyWindow(threadWin);
+				//return texture;
 			}
 			else
 			{
+		 
+			    glfwMakeContextCurrent(window);
+               #ifdef __EMSCRIPTEN__
+               #else
+				bool err = glewInit() != GLEW_OK;
+				if (err)std::cout << "GLEW_ERR" << std::endl;
+                #endif 
+				glDeleteTextures(1, &texture);
+				glFinish();
 				stbi_image_free(data);
+				//glfwDestroyWindow(threadWin);
 				std::cout << "Failed to load texture" << std::endl;
-				return 0;
+				//return 0;
 			}
+		}
+		unsigned int loadTexture(const std::string& path, GLFWwindow* window,GLenum input_format = GL_RGB, GLenum input_type = GL_UNSIGNED_BYTE) {
+			
+			GLuint texture;
+			glGenTextures(1, &texture);
+			glBindTexture(GL_TEXTURE_2D, texture);
+			std::string f_path = f_path;
+			std::ifstream fs;
+            #ifdef __EMSCRIPTEN__
+			     f_path = "res/texture/" + path; 
+            #else
+			auto cwd = boost::filesystem::current_path();
+			f_path= cwd.string() + "/res/texture/" + path;
+            #endif
+			//std::thread t1(loadTexture_async, f_path, texture, window, input_format, input_type);t1.detach();
+			loadTexture_async(f_path, texture, window,input_format, input_type);
+			return texture;
+ 
+		
 		
 		}
 
