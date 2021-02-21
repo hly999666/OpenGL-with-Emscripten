@@ -12,6 +12,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <unordered_map>
 #include "gl_helper.hpp"
 #ifdef __EMSCRIPTEN__
 #define GLM_FORCE_SIMD_AVX
@@ -27,8 +28,9 @@ namespace  lyh_gl {
 	{
 	public:
 		bool isLoaded{ false };
-		unsigned int ID;
-		unsigned int texture_used_id{ 0 };
+		GLuint ID;
+		GLuint texture_used_id{0};
+		std::unordered_map<std::string, GLuint>tex_unit_table;
 		Shader(const std::string& path):texture_used_id(0), isLoaded(false){
 			std::string vs_src;
 			std::string fs_src;
@@ -42,34 +44,50 @@ namespace  lyh_gl {
 		~Shader() {
 			glDeleteProgram(ID);
 		}
-		void use() {
+		//TODO
+		void cacheUniformLocation() {};
+		inline void use() {
 			glUseProgram(ID);
 		};
 		// utility uniform functions
-		void setBool(const std::string& name, bool value) const {
+		inline void setBool(const std::string& name, bool value) const {
 
 			glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
 		};
-		void setInt(const std::string& name, int value) const {
+		inline void setInt(const std::string& name, int value) const {
 			glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 		};
-		void setFloat(const std::string& name, float value) const {
+		inline void setFloat(const std::string& name, float value) const {
 			{
 				glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 			}
 		};
  	 
-		void setMat4(const std::string& name,float* ptr) {
+		inline void setMat4(const std::string& name,float* ptr) {
 			unsigned int transformLoc = glGetUniformLocation(ID, name.c_str());
 			glUniformMatrix4fv(transformLoc, 1, GL_FALSE, ptr);
 		}
-		void setMat4(const std::string& name, const glm::mat4& mat) {
+		inline void setMat4(const std::string& name, const glm::mat4& mat) {
 			unsigned int transformLoc = glGetUniformLocation(ID, name.c_str());
 			glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(mat));
 		}
-		//TODO
-		void setTexUnit(const std::string& name) {};
-		void bindTex(const std::string& name, GLuint tex_id) {};
+ 
+		inline void setTexUnit(const lyh_gl::helper::gl_texture& tex) {
+			setTexUnit(tex.name);
+		};
+		inline void setTexUnit(const std::string& name) {
+			tex_unit_table[name] = texture_used_id;  
+			texture_used_id++;
+		};
+
+		inline void bindTex(const std::string& name_shader,const lyh_gl::helper::gl_texture& tex) {
+			auto tex_unit_id = tex_unit_table[tex.name];
+			auto loc = glGetUniformLocation(ID, name_shader.c_str());
+			glActiveTexture(GL_TEXTURE0 + tex_unit_id);
+			glBindTexture(GL_TEXTURE_2D, tex.texture_id);
+			glUniform1i(loc, tex_unit_id);
+			//glBindTexture(GL_TEXTURE_2D, NULL);
+		};
 	};
 }
 #endif

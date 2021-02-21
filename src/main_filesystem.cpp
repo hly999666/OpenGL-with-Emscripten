@@ -104,12 +104,13 @@ int main()
 
 	lyh_gl::geometry::buildRect(VBO, VAO, EBO);
 	//auto tex_1 = 0;
-  	lyh_gl::helper::texture_loader tex_1{ "cat_2.jpg" };
-	//set up texture
+  	lyh_gl::helper::gl_texture tex_1{ "uv-grid.png"};
+	lyh_gl::helper::gl_texture tex_2{ "cat_2.jpg" };
+	//set up texture in shader
+	shader_1.setTexUnit(tex_1); 
+	shader_1.setTexUnit(tex_2);
 
-
-
-
+ 
 
 
 	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height)
@@ -134,7 +135,7 @@ int main()
 
 
 		//glUseProgram(shaderProgram);
-		shader_1.use();
+	
 		glBindVertexArray(VAO);
 		//setup viewport
 		glViewport(0, 0, width, height);
@@ -146,14 +147,19 @@ int main()
 		//set uniform 
 		float timeValue = glfwGetTime();
 		float _val = (sin(timeValue) / 2.0f) + 0.5f;
-		shader_1.setFloat("inputColor", _val);
+		
+		shader_1.use();
+		shader_1.setFloat("u_time", _val);
 
-		 unsigned int tex_index = 0;
+		 
 		 tex_1.wait_for(1);
-		glActiveTexture(GL_TEXTURE0 + tex_index);
-		glBindTexture(GL_TEXTURE_2D, tex_1.texture_id);
+		 shader_1.bindTex("texture1",tex_1);
+		 tex_2.wait_for(1);
+		 shader_1.bindTex("texture2", tex_2);
+		//glActiveTexture(GL_TEXTURE0 + 0);
+		//glBindTexture(GL_TEXTURE_2D, tex_1.texture_id);
 
-		glUniform1i(glGetUniformLocation(shader_1.ID, "texture1"), tex_index); 
+		//glUniform1i(glGetUniformLocation(shader_1.ID, "texture1"), 0);
 		//must unbind all before draw UI
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(NULL);

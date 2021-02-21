@@ -19,7 +19,7 @@ endif()
 #message(STATUS "GLM included at ${GLM_INCLUDE_DIR}")
 set(SRC 
 #src/main_gl_c7_Textures.cpp
-src/main_filesystem.cpp
+src/main_gl_c10_camera.cpp
 #src/main_fractalTree2D_Basic.cpp
 )
 
@@ -87,7 +87,7 @@ target_link_libraries(${EXCE_NAME}  PRIVATE lyh_gl_lib)
 target_link_libraries(${EXCE_NAME}  PRIVATE DDoN)
  #target_link_libraries(${EXCE_NAME}  PRIVATE glm)
 if(BUILDWASM)
-set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -pthread  -msimd128 -s  USE_WEBGL2=2 -s USE_GLFW=3  -s WASM=1 -std=c++11 -s USE_PTHREADS=1 -Wl,--shared-memory,--no-check-features  --preload-file  res    --shell-file html/shell_minimal.html")
+set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -pthread  -msimd128 -s ALLOW_MEMORY_GROWTH=1 -s  USE_WEBGL2=2 -s USE_GLFW=3  -s WASM=1 -std=c++11 -s USE_PTHREADS=1 -Wl,--shared-memory,--no-check-features  --preload-file  res    --shell-file html/shell_minimal.html")
   file(COPY "res" DESTINATION ${CMAKE_BINARY_DIR})
 else()
 #set_property(TARGET ${EXCE_NAME}   PROPERTY CXX_STANDARD 11)

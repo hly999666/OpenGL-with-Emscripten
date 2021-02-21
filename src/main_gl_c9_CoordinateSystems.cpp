@@ -7,7 +7,6 @@
 #endif
 #include <GLFW/glfw3.h>
 #include <functional>
-
 #include <iostream>
 #include<string>
 #ifndef GL_HELPER_H
@@ -21,7 +20,7 @@
 #endif  
 #include  "Optr_ol.hpp"
 #ifdef __EMSCRIPTEN__
-#define GLM_FORCE_SSE3 
+#define GLM_FORCE_SIMD_AVX 
 #else
 #define GLM_FORCE_AVX2  
 #endif
