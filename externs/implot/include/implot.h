@@ -23,8 +23,9 @@
 // ImPlot v0.8 WIP
 
 #pragma once
-#include "../imgui/imgui.h"
-
+#ifndef IMGUI_API
+#include "imgui.h"
+#endif
 //-----------------------------------------------------------------------------
 // Macros and Defines
 //-----------------------------------------------------------------------------
@@ -35,7 +36,7 @@
 // do use ImPlot as a DLL, be sure to call SetImGuiContext (details below).
 #ifndef IMPLOT_API
 #define IMPLOT_API
-#endif
+
 
 // ImPlot version string
 #define IMPLOT_VERSION "0.8 WIP"
@@ -686,3 +687,4 @@ IMPLOT_API void SetImGuiContext(ImGuiContext* ctx);
 IMPLOT_API void ShowDemoWindow(bool* p_open = NULL);
 
 }  // namespace ImPlot
+#endif

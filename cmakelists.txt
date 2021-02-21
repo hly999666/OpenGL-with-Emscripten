@@ -6,8 +6,7 @@ set(EXCE_NAME "opengl_test_0")
 #find_package(glm CONFIG REQUIRED)
 
 #set(GLM_DIR  "${CMAKE_SOURCE_DIR}externs/glm/cmake/glm")
-set(USE_IMGUI ON)
-set(USE_IMPLOT ON)
+ 
 
 if(BUILDWASM)
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/externs/")
@@ -19,7 +18,7 @@ endif()
 #message(STATUS "GLM included at ${GLM_INCLUDE_DIR}")
 set(SRC 
 #src/main_gl_c7_Textures.cpp
-src/main_gl_c10_camera.cpp
+src/main_imguiAndimplot_testbed.cpp
 #src/main_fractalTree2D_Basic.cpp
 )
 
@@ -27,29 +26,12 @@ src/main_gl_c10_camera.cpp
 set(SRC 
     "${SRC}"
 )
-if(USE_IMGUI)
-set(IMGUI_SRC
-    externs/imgui/imgui.cpp
-    externs/imgui/imgui_draw.cpp
-    externs/imgui/imgui_widgets.cpp
-    externs/imgui/imgui_demo.cpp
-    externs/imgui/imgui_impl_glfw.cpp
-    externs/imgui/imgui_impl_opengl3.cpp
  
-) 
-endif()
 
- if(USE_IMPLOT)
-set(IMPLOT_SRC
- externs/implot/implot.h
-  externs/implot/implot_internal.h
-    externs/implot/implot.cpp
-    externs/implot/implot_demo.cpp
-    externs/implot/implot_items.cpp
-) 
-endif()
-#add_subdirectory(externs/glm/glm)
-
+add_subdirectory(externs/imgui)
+message("IMGUI_DIR is ${IMGUI_DIR}")
+add_subdirectory(externs/implot)
+ add_subdirectory(externs/glm)
 message("${SRC}")
 #find_package(OpenGL REQUIRED)
 
@@ -67,11 +49,15 @@ add_subdirectory(lib/lyh_gl_lib)
 add_subdirectory(lib/DDON)
 add_executable(${EXCE_NAME} 
     ${SRC} 
-    ${IMGUI_SRC}
-    ${IMPLOT_SRC}
+    #${IMGUI_SRC}
+    #${IMPLOT_SRC}
      ) 
 
-#target_link_libraries(${EXCE_NAME}  PRIVATE imgui)
+target_link_libraries(${EXCE_NAME}  PRIVATE lib_imgui)
+ 
+target_link_libraries(${EXCE_NAME}  PRIVATE lib_implot)
+target_link_libraries(${EXCE_NAME}  PRIVATE lib_glm)
+#message("GLM_LIB_DIR = ${LIB_GLM_DIR}")
 if(BUILDWASM)
 
 else()
@@ -87,7 +73,7 @@ target_link_libraries(${EXCE_NAME}  PRIVATE lyh_gl_lib)
 target_link_libraries(${EXCE_NAME}  PRIVATE DDoN)
  #target_link_libraries(${EXCE_NAME}  PRIVATE glm)
 if(BUILDWASM)
-set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -pthread  -msimd128 -s ALLOW_MEMORY_GROWTH=1 -s  USE_WEBGL2=2 -s USE_GLFW=3  -s WASM=1 -std=c++11 -s USE_PTHREADS=1 -Wl,--shared-memory,--no-check-features  --preload-file  res    --shell-file html/shell_minimal.html")
+set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -pthread  -msimd128 -s ALLOW_MEMORY_GROWTH=1  -s  USE_WEBGL2=2 -s USE_GLFW=3  -s WASM=1 -std=c++11 -s USE_PTHREADS=1    -Wl,--shared-memory,--no-check-features  --preload-file  res    --shell-file html/shell_minimal.html")
   file(COPY "res" DESTINATION ${CMAKE_BINARY_DIR})
 else()
 #set_property(TARGET ${EXCE_NAME}   PROPERTY CXX_STANDARD 11)

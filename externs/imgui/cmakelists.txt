@@ -1,0 +1,24 @@
+if(BUILDWASM)
+else()
+find_package(GLEW REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
+endif()
+
+add_library(lib_imgui STATIC 
+    src/imgui.cpp
+    src/imgui_draw.cpp
+    src/imgui_impl_glfw.cpp
+    src/imgui_impl_opengl3.cpp
+    src/imgui_widgets.cpp
+)
+
+target_include_directories(lib_imgui
+    PUBLIC 
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+if(BUILDWASM)
+else()
+target_link_libraries(lib_imgui  PRIVATE GLEW::GLEW)
+target_link_libraries(lib_imgui  PRIVATE glfw)
+endif()
+set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)

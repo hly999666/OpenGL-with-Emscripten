@@ -21,7 +21,9 @@
 // SOFTWARE.
 
 // ImPlot v0.8 WIP
-
+ 
+ 
+#include "imgui.h"
 #include "implot.h"
 #include <math.h>
 #include <stdio.h>

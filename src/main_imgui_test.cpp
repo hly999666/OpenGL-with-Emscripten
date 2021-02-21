@@ -2,11 +2,16 @@
  
 #include <GL/glew.h>      
 #include <glfw/glfw3.h>
-#include "../externs/imgui/imgui.h"
-#include"../externs/imgui/imgui_impl_opengl3.h" 
-#include"../externs/imgui/imgui_impl_glfw.h" 
-#include"../externs/implot/implot.h" 
-
+//#include "../externs/imgui/imgui.h"
+//#include"../externs/imgui/imgui_impl_opengl3.h" 
+//#include"../externs/imgui/imgui_impl_glfw.h" 
+//#include"../externs/implot/implot.h" 
+#ifndef IMGUI_API
+#include "imgui.h"
+#endif
+#include "imgui_impl_opengl3.h" 
+#include "imgui_impl_glfw.h" 
+//#include"implot.h" 
 
 #include <stdio.h>
 
@@ -49,13 +54,13 @@ int main(int, char**)
     //my code 
     std::string vs_src;
     std::string fs_src;
-    if (!lyh::gl_helper::parseShader("/res/shader/basic_tri_1.glsl", vs_src, fs_src)) {
+    if (!lyh_gl::helper::parseShader("basic_tri_1.glsl", vs_src, fs_src)) {
         std::cout << "parseShader error" << std::endl;
         return 0;
     }
 
     unsigned int shaderProgram
-        = lyh::gl_helper::buildShaderProgram(vs_src, fs_src);
+        = lyh_gl::helper::buildShaderProgram(vs_src, fs_src);
     //setup geometry
     float vertices[] = {
     -0.5f, -0.5f, 0.0f,

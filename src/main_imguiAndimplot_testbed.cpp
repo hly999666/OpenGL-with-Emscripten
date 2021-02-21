@@ -8,18 +8,23 @@
 #include <GLFW/glfw3.h>
 #include <functional>
 #include <iostream>
+ 
 #ifdef __EMSCRIPTEN__
-#define GLM_FORCE_SIMD_AVX  
+#define GLM_FORCE_SIMD_AVX 
 #else
 #define GLM_FORCE_AVX2  
 #endif
+#include  "glm.hpp"
+#include "gtc/matrix_transform.hpp" 
+#include "gtc/type_ptr.hpp" 
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_glfw.h"
 #include "implot.h"
+#include "gl_gui.hpp"
 #include "Plant2D.hpp"
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window);
+bool processInput(GLFWwindow *window);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -45,17 +50,12 @@ const char *fragmentShaderSource =
     "{\n"
     "   FragColor = vec4(ourColor, 1.0f);\n"
     "}\n\0";
-void drawLineSegments(const float* x, const float *y,int count,ImU32 col=0x00ff00ff,float thickness=2.0f) {
-    //auto draw_list = ImPlot::GetPlotDrawList();
-    for (int i = 0; i < count / 2; i++) {
-  
-        ImPlot::PlotLine("line", x+2*i, y+ 2 * i, 2);
-    }
-}
+
 unsigned int buildShader() {
     // build and compile our shader program
     // ------------------------------------
     // vertex shader
+ 
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
@@ -172,7 +172,7 @@ int main()
         glUseProgram((GLuint)NULL);
     };
    //IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
+    /*ImGui::CreateContext();
     ImPlot::CreateContext();
 
 
@@ -181,8 +181,11 @@ int main()
     ImGui::StyleColorsDark();
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
-
+    ImGui_ImplOpenGL3_Init(glsl_version);*/
+    lyh_gl::gui::set_up(window, glsl_version);
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    auto font_1 = io.Fonts->AddFontFromFileTTF("./res/font/Roboto-Medium.ttf",20.0f);
+ 
     bool show_demo_window = true;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -190,17 +193,28 @@ int main()
 
     float x_data[6] = { 1,2,2,3,4,6 };
     float y_data[6] = { 1,2,2,3,4,6 };
+    std::vector<float> point_x;   std::vector<float> point_y;
     std::vector<float>x_pos; std::vector<float>y_pos;
     float theta = 80.0f;    float s = 0.577;
     loop = [&] {
 
-        glfwPollEvents();
+      
+        if (!processInput(window))return;
 
 
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        draw_tri();
+      
+        //draw gui
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
+        ImGui::PushFont(font_1);
         //ImGui::ShowDemoWindow();
 
         //ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
@@ -209,14 +223,14 @@ int main()
         //    show_another_window = false;
         //ImGui::End();
 
-      
+
         //ImPlot::ShowDemoWindow();
-      
+
         ImGui::SetNextWindowPos({ 32,50 });
         ImGui::SetNextWindowSize({ 256,128 });
         ImGui::Begin("Control");
-        ImGui::SliderFloat("theta", &theta,0,180);
-        ImGui::SliderFloat("S", &s, 0, sqrt(2)*0.5);
+        ImGui::SliderFloat("theta", &theta, 0, 180);
+        ImGui::SliderFloat("S", &s, 0, sqrt(2) * 0.5);
         ImGui::End();
         ImGui::SetNextWindowPos({ 320,50 });
         ImGui::SetNextWindowSize({ 1024,1024 });
@@ -224,40 +238,33 @@ int main()
         auto name = "Plot_windows";
         ImPlot::GetStyle().AntiAliasedLines = true;
         ImGui::Begin("Tree_Line_Plot");
-        ImPlot::SetNextPlotLimits(-5,5,0,10);
-        if (ImPlot::BeginPlot("Plot_1", "x", "y", {1024,1024 })) {
+        ImPlot::SetNextPlotLimits(-5, 5, 0, 10);
+        if (ImPlot::BeginPlot("Plot_1", "x", "y", { 1024,1024 })) {
             x_pos.clear(); y_pos.clear();
-            DDoN::fractalTree2D_Basic(glm::radians(theta)*0.5, s, x_pos, y_pos);
-           drawLineSegments(x_pos.data(), y_pos.data(), x_pos.size());
+            DDoN::fractalTree2D_Basic(glm::radians(theta) * 0.5, s, x_pos, y_pos);
+            lyh_gl::gui::drawLineSegments(x_pos.data(), y_pos.data(), x_pos.size());
+
+            //plot click point
+            lyh_gl::gui::readClickPointAndPlot(point_x, point_y);
             ImPlot::EndPlot();
         }
-         ImGui::End(); 
+        ImGui::PopFont();
+        ImGui::End();
         ImGui::Render();
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        draw_tri();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
         glfwSwapBuffers(window);
-
+        glfwPollEvents();
     };
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(main_loop, 0, true);
 #else
-    while (!glfwWindowShouldClose(window))
-        main_loop();
+    while (!glfwWindowShouldClose(window))main_loop();
+        
 #endif
 
     //clearup
-    ImPlot::DestroyContext();
-    ImGui::DestroyContext();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui_ImplOpenGL3_Shutdown();
-
+  
+    lyh_gl::gui::clear_up();
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderProgram);
@@ -268,10 +275,15 @@ int main()
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
+bool processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
+ 
         glfwSetWindowShouldClose(window, true);
+        return false;
+    }
+    return true;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

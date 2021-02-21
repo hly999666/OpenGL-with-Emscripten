@@ -36,8 +36,10 @@
 #endif
 
 #include <time.h>
-#include "../imgui/imgui_internal.h"
-
+#include "imgui_internal.h"
+#ifndef IMPLOT_API
+#include "implot.h"
+#endif
 #ifndef IMPLOT_VERSION
 #error Must include implot.h before implot_internal.h
 #endif

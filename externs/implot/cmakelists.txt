@@ -1,0 +1,13 @@
+ 
+add_library(lib_implot STATIC 
+    src/implot.cpp
+    src/implot_demo.cpp
+    src/implot_items.cpp
+)
+set(IMPLOT_DIR ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
+target_include_directories(lib_implot
+    PUBLIC 
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+         ${IMGUI_DIR}/include
+)
+ 

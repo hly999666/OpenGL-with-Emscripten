@@ -65,7 +65,9 @@ You can read releases logs https://github.com/epezent/implot/releases for more d
 
 */
 
-#include "implot.h"
+#ifndef IMGUI_API
+#include "imgui.h"
+#endif
 #include "implot_internal.h"
 
 #ifdef _MSC_VER
