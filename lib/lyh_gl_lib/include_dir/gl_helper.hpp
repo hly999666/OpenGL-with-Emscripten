@@ -35,6 +35,55 @@
 typedef  std::string string;
 namespace  lyh_gl {
 	namespace helper {
+		GLFWwindow* gl_init(unsigned int width, unsigned int height) {
+			glfwInit();
+           #ifdef __EMSCRIPTEN__
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            #else
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            #endif
+			//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
+			//init window
+
+			glfwWindowHint(GLFW_VISIBLE, GL_TRUE);
+			GLFWwindow* window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
+
+			if (window == NULL)
+
+			{
+
+				std::cout << "Failed to create GLFW window" << std::endl;
+
+				glfwTerminate();
+
+				return nullptr;
+
+			}
+			glfwMakeContextCurrent(window);
+
+
+   #ifdef __EMSCRIPTEN__
+    #else
+			bool err = glewInit() != GLEW_OK;
+			if (GLEW_OK != err)
+			{
+
+				fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+				return nullptr;
+			}
+
+   #endif
+			glfwSwapInterval(1);
+			return window;
+		}
+		void gl_clear_up(GLFWwindow* window) {
+			glfwDestroyWindow(window);
+			glfwTerminate();
+			exit(EXIT_SUCCESS);
+		}
 		unsigned int buildShaderProgram(const std::string& vertexShaderSource, const std::string& fragmentShaderSource) {
 			unsigned int vertexShader;
 			vertexShader = glCreateShader(GL_VERTEX_SHADER);
