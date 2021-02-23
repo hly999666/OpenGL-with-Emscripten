@@ -18,7 +18,7 @@ endif()
 #message(STATUS "GLM included at ${GLM_INCLUDE_DIR}")
 set(SRC 
 #src/main_gl_c7_Textures.cpp
-src/main_gl_c12-c14_color-lighting-materials.cpp
+src/main_imguiAndimplot_testbed.cpp
 #src/main_fractalTree2D_Basic.cpp
 )
 
@@ -46,6 +46,7 @@ endif()
 #add_subdirectory(lib/imgui)
 add_subdirectory(lib/05_dir)
 add_subdirectory(lib/lyh_gl_lib)
+add_subdirectory(lib/computational_geometry_exercise)
 add_subdirectory(lib/DDON)
 add_executable(${EXCE_NAME} 
     ${SRC} 
@@ -71,6 +72,7 @@ else()
 target_link_libraries(${EXCE_NAME}  PRIVATE Operator_OverLoading)
 target_link_libraries(${EXCE_NAME}  PRIVATE lyh_gl_lib)
 target_link_libraries(${EXCE_NAME}  PRIVATE DDoN)
+target_link_libraries(${EXCE_NAME}  PRIVATE comp_geo_exercise) 
  #target_link_libraries(${EXCE_NAME}  PRIVATE glm)
 if(BUILDWASM)
 set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -pthread  -msimd128 -s ALLOW_MEMORY_GROWTH=1  -s  USE_WEBGL2=2 -s USE_GLFW=3  -s WASM=1 -std=c++11 -s USE_PTHREADS=1    -Wl,--shared-memory,--no-check-features  --preload-file  res    --shell-file html/shell_minimal.html")

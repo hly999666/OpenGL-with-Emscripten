@@ -57,11 +57,12 @@ namespace lyh_gl {
 			}
 		
 			if (point_x.size() != 0 && point_y.size() != 0) {
-
+				ImPlot::PushColormap(ImPlotColormap_Pastel);
 				//std::cout << "point nums = " << point_x.size() << std::endl;
 				ImPlot::PlotScatter("clicked point", point_x.data(), point_y.data(), point_x.size());
 			}
 		
+			ImPlot::PopColormap();
 		}
 	};
 };

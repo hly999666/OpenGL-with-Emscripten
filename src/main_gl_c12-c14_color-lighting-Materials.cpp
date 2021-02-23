@@ -258,7 +258,7 @@ int main()
 		lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 
 		auto diffuse_input = glm::vec3(col_diffuse[0], col_diffuse[1], col_diffuse[2]);
-		lightingShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+		lightingShader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
 		lightingShader.setVec3("material.diffuse", diffuse_input);
 		lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);  
 		lightingShader.setFloat("material.shininess", 32.0f);
@@ -274,7 +274,7 @@ int main()
 
 		auto normal_mat = glm::mat3(glm::transpose(glm::inverse(model)));
 
-		lightingShader.setMat3("model", normal_mat);
+		lightingShader.setMat3("nomal_mat", normal_mat);
 
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);

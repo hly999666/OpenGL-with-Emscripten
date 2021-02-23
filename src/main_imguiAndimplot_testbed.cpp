@@ -22,7 +22,9 @@
 #include "imgui_impl_glfw.h"
 #include "implot.h"
 #include "gl_gui.hpp"
-#include "Plant2D.hpp"
+#include "Plant2D.hpp"  
+#include "comp_geo_common.hpp"
+#include "convex_hull.hpp"
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 bool processInput(GLFWwindow *window);
 
@@ -194,6 +196,7 @@ int main()
     float x_data[6] = { 1,2,2,3,4,6 };
     float y_data[6] = { 1,2,2,3,4,6 };
     std::vector<float> point_x;   std::vector<float> point_y;
+    std::vector<float> point_ch_x;   std::vector<float> point_ch_y;
     std::vector<float>x_pos; std::vector<float>y_pos;
     float theta = 80.0f;    float s = 0.577;
     loop = [&] {
@@ -226,26 +229,52 @@ int main()
 
         //ImPlot::ShowDemoWindow();
 
-        ImGui::SetNextWindowPos({ 32,50 });
-        ImGui::SetNextWindowSize({ 256,128 });
-        ImGui::Begin("Control");
-        ImGui::SliderFloat("theta", &theta, 0, 180);
-        ImGui::SliderFloat("S", &s, 0, sqrt(2) * 0.5);
-        ImGui::End();
-        ImGui::SetNextWindowPos({ 320,50 });
-        ImGui::SetNextWindowSize({ 1024,1024 });
+        //ImGui::SetNextWindowPos({ 32,50 });
+        //ImGui::SetNextWindowSize({ 256,128 });
+        //ImGui::Begin("Control");
+        //ImGui::SliderFloat("theta", &theta, 0, 180);
+        //ImGui::SliderFloat("S", &s, 0, sqrt(2) * 0.5);
+        //ImGui::End();
+        //ImGui::SetNextWindowPos({ 320,50 });
+        //ImGui::SetNextWindowSize({ 1024,1024 });
 
         auto name = "Plot_windows";
         ImPlot::GetStyle().AntiAliasedLines = true;
         ImGui::Begin("Tree_Line_Plot");
-        ImPlot::SetNextPlotLimits(-5, 5, 0, 10);
+        ImPlot::SetNextPlotLimits(-1, 1, -1, 1, ImGuiCond_Always);
+        int case_size =20;
         if (ImPlot::BeginPlot("Plot_1", "x", "y", { 1024,1024 })) {
-            x_pos.clear(); y_pos.clear();
-            DDoN::fractalTree2D_Basic(glm::radians(theta) * 0.5, s, x_pos, y_pos);
-            lyh_gl::gui::drawLineSegments(x_pos.data(), y_pos.data(), x_pos.size());
+            //x_pos.clear(); y_pos.clear();
+            //DDoN::fractalTree2D_Basic(glm::radians(theta) * 0.5, s, x_pos, y_pos);
+            //lyh_gl::gui::drawLineSegments(x_pos.data(), y_pos.data(), x_pos.size());
 
             //plot click point
-            lyh_gl::gui::readClickPointAndPlot(point_x, point_y);
+            std::string type = "Point";
+            if (ImGui::IsMouseClicked(1)) {
+                auto pos = ImPlot::GetPlotMousePos();
+              if (point_x.size() == case_size && point_y.size()== case_size) {
+                point_x.clear(); point_y.clear();
+
+            }
+                point_x.push_back(pos.x); point_y.push_back(pos.y);
+
+            }
+           
+             
+       
+            if (point_x.size() > 0 && point_y.size() > 0) {
+            
+                ImPlot::PlotScatter(type.c_str(), point_x.data(), point_y.data(), point_x.size());
+                lyh_cg::convex_hull_extreme_edges(point_x, point_y, point_ch_x, point_ch_y);
+                if (point_ch_x.size() > 0) {
+                    ImPlot::PlotLine("Convex Hull", point_ch_x.data(), point_ch_y.data(), point_ch_x.size());
+                
+                }
+            }
+
+       
+
+
             ImPlot::EndPlot();
         }
         ImGui::PopFont();
