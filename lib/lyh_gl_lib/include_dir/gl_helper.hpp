@@ -100,6 +100,7 @@ namespace  lyh_gl {
 				glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
 				std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" <<
 					infoLog << std::endl;
+				exit(-1);
 			}
 			unsigned int fragmentShader;
 			auto fs_ptr = fragmentShaderSource.c_str();
@@ -116,6 +117,7 @@ namespace  lyh_gl {
 				glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
 				std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" <<
 					infoLog << std::endl;
+				exit(-1);
 			}
 
 			unsigned int shaderProgram;
@@ -131,6 +133,7 @@ namespace  lyh_gl {
 				glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
 				std::cout << "ERROR::SHADER::SHADERPROGRAM::LINKING_FAILED\n" <<
 					infoLog << std::endl;
+				exit(-1);
 			}
 			glDeleteShader(vertexShader);
 			glDeleteShader(fragmentShader);
@@ -239,11 +242,13 @@ namespace  lyh_gl {
 			GLuint texture;
 			glGenTextures(1, &texture);
 			glBindTexture(GL_TEXTURE_2D, texture);
-			std::string f_path = f_path;
+			std::string f_path = "";
 			std::ifstream fs;
 #ifdef __EMSCRIPTEN__
+
 			f_path = "res/texture/" + path;
 #else
+		 
 			auto cwd = boost::filesystem::current_path();
 			f_path = cwd.string() + "/res/texture/" + path;
 #endif
@@ -262,6 +267,7 @@ namespace  lyh_gl {
 			std::future<texture_info>future;
 			texture_info info;
 			std::string status{ "N/A" };
+			std::thread* loading_thread;
 			gl_texture(const std::string _path, const std::string mode = "async", GLenum input_format = GL_RGB) {
 
 				glGenTextures(1, &texture_id);
@@ -285,13 +291,19 @@ namespace  lyh_gl {
 				future = task.get_future();
 
 				if (mode == "async") {
-					std::thread task_td(std::move(task));
-					task_td.detach();
+					loading_thread=new std::thread(std::move(task));
+					loading_thread->detach();
 					status = "loading";
 				}
 				else if (mode == "sync") {
 					//run task
 					task();
+					status = "loading";
+				}
+				else if (mode == "async_joinable") {
+					//run task
+					loading_thread = new std::thread(std::move(task));
+					status = "loading";
 				}
 
 				//task_td.join();
@@ -300,6 +312,10 @@ namespace  lyh_gl {
 			~gl_texture() {
 				stbi_image_free(info.data);
 			}
+			void loading_thread_join_blocking() {
+				loading_thread->join();
+				wait_for(1);
+			};
 			void wait_for(unsigned int time_micro_s) {
 				if (status == "loaded")return;
 				auto f_status = future.wait_for(std::chrono::microseconds(time_micro_s));
@@ -312,6 +328,7 @@ namespace  lyh_gl {
 					set_up_texture(info, texture_id);
 					status = "loaded";
 				}
+				delete loading_thread;
 			}
 
 		};

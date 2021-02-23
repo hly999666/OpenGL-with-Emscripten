@@ -26,7 +26,11 @@
 #include "implot.h"
 namespace lyh_gl {
 
-	namespace gui {
+	namespace ui {
+		//TODO
+		class ui_envir {
+
+		};
 		void set_up(GLFWwindow* window, const char* glsl_version, bool withImPlot = true) {
 			ImGui::CreateContext();
 			if (withImPlot)ImPlot::CreateContext();
