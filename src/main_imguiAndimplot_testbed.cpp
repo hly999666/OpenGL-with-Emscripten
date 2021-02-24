@@ -21,7 +21,7 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_glfw.h"
 #include "implot.h"
-#include "gl_gui.hpp"
+#include "gl_ui.hpp"
 #include "Plant2D.hpp"  
 #include "comp_geo_common.hpp"
 #include "convex_hull.hpp"
@@ -184,7 +184,7 @@ int main()
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);*/
-    lyh_gl::gui::set_up(window, glsl_version);
+    lyh_gl::ui::set_up(window, glsl_version);
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     auto font_1 = io.Fonts->AddFontFromFileTTF("./res/font/Roboto-Medium.ttf",20.0f);
  
@@ -242,7 +242,7 @@ int main()
         ImPlot::GetStyle().AntiAliasedLines = true;
         ImGui::Begin("Tree_Line_Plot");
         ImPlot::SetNextPlotLimits(-1, 1, -1, 1, ImGuiCond_Always);
-        int case_size =20;
+        int case_size =40;
         if (ImPlot::BeginPlot("Plot_1", "x", "y", { 1024,1024 })) {
             //x_pos.clear(); y_pos.clear();
             //DDoN::fractalTree2D_Basic(glm::radians(theta) * 0.5, s, x_pos, y_pos);
@@ -265,7 +265,7 @@ int main()
             if (point_x.size() > 0 && point_y.size() > 0) {
             
                 ImPlot::PlotScatter(type.c_str(), point_x.data(), point_y.data(), point_x.size());
-                lyh_cg::convex_hull_extreme_edges(point_x, point_y, point_ch_x, point_ch_y);
+                lyh_cg::convex_hull_Granham_Scan(point_x, point_y, point_ch_x, point_ch_y);
                 if (point_ch_x.size() > 0) {
                     ImPlot::PlotLine("Convex Hull", point_ch_x.data(), point_ch_y.data(), point_ch_x.size());
                 
@@ -293,7 +293,7 @@ int main()
 
     //clearup
   
-    lyh_gl::gui::clear_up();
+    lyh_gl::ui::clear_up();
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderProgram);
