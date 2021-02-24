@@ -24,9 +24,13 @@
 #else
 #define GLM_FORCE_AVX2  
 #endif
-#include  "../../../externs/glm/glm/glm.hpp"
-#include "../../../externs/glm/glm/gtc/matrix_transform.hpp"
-#include "../../../externs/glm/glm/gtc/type_ptr.hpp"
+//#include  "../../../externs/glm/glm/glm.hpp"
+//#include "../../../externs/glm/glm/gtc/matrix_transform.hpp"
+//#include "../../../externs/glm/glm/gtc/type_ptr.hpp"
+#include "glm.hpp"
+#include "gtc/matrix_transform.hpp"
+#include "gtc/type_ptr.hpp"
+#include "gl_helper.hpp"
 namespace lyh_gl  {
     namespace geometry {
     
@@ -132,12 +136,13 @@ namespace lyh_gl  {
             // position attribute
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
             glEnableVertexAttribArray(0);
-            // texture coord attribute
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-            glEnableVertexAttribArray(1);
             //normal
-            glVertexAttribPointer(2, 3, GL_FLOAT, GL_TRUE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+            glEnableVertexAttribArray(1);
+            // texture coord attribute
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
             glEnableVertexAttribArray(2);
+    
         };
     
     };

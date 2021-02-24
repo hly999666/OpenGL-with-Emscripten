@@ -52,14 +52,29 @@ namespace lyh_cg {
 		output_y.push_back(point_set[first].y());
 	}
 	void convex_hull_Granham_Scan(std::vector<float>& input_x, std::vector<float>& input_y, std::vector<float>& output_x, std::vector<float>& output_y) {
-		output_x.clear(); output_y.clear();
-		if (input_x.size() < 3)return;
+		
+
+
+
+
+
+
+		if (input_x.size() < 5)return;
 		std::vector<lyh_cg::vec3>point_set; point_set.resize(input_x.size());
 		for (int i = 0; i < input_x.size(); i++) {
 			point_set[i][0] = input_x[i]; point_set[i][1] = input_y[i]; point_set[i][2] = 1.0f;
 		};
+		for (int i = 0; i < point_set.size()-1; i++) {
+			if (point_set[i] == point_set.back()) {
+			 
+				input_x.pop_back(); input_y.pop_back();
+				return ;
+			}
+		}
+		output_x.clear(); output_y.clear();
 		//find llt
 		auto comp_llt = [](const vec3& v1, const vec3& v2)->bool {
+			auto diff = v1 - v2;
 			if (v1.y() < v2.y())return true;
 			if (v1.y() > v2.y())return false;
 			if (v1.x() < v2.x())return true;
@@ -74,8 +89,11 @@ namespace lyh_cg {
 
 		//pre-sorting
 		auto comp_to_left_llt = [&const_llt](const vec3& v1, const vec3& v2)->bool {
-            if (lyh_cg::to_left(const_llt, v1, v2))return false;
-			else return true;
+			//TODO Check conditional near equal,i.e three point in a line,will have problem with numerical precision
+			auto area = lyh_cg::area2(const_llt, v1, v2);
+            if (area>0.0)return false;
+			if (area < 0.0)return true;
+		  
 		};
 		std::sort(point_set.begin(), point_set.end(), comp_to_left_llt);
 		std::vector<vec3>current_result;  
@@ -89,7 +107,7 @@ namespace lyh_cg {
 			current_result.push_back(back);
 		
 		}
-		//outpur
+		//output
 		for (auto& v : current_result) {
 			output_x.push_back(v.x());
 			output_y.push_back(v.y());

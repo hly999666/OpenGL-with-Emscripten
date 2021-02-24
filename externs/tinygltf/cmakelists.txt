@@ -1,0 +1,13 @@
+ 
+
+add_library(lib_tiny_gltf STATIC 
+    src/tinyglft_test.cpp
+)
+message("On lib_tinyglft")
+target_include_directories(lib_tiny_gltf
+    PUBLIC  include_public
+)
+target_include_directories(lib_tiny_gltf
+    PRIVATE  include_private
+)
+ 

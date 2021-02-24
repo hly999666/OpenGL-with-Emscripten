@@ -18,7 +18,7 @@ endif()
 #message(STATUS "GLM included at ${GLM_INCLUDE_DIR}")
 set(SRC 
 #src/main_gl_c7_Textures.cpp
-src/main_imguiAndimplot_testbed.cpp
+src/main_gl_c19-c21_model_loading.cpp
 #src/main_fractalTree2D_Basic.cpp
 )
 
@@ -32,6 +32,7 @@ add_subdirectory(externs/imgui)
 message("IMGUI_DIR is ${IMGUI_DIR}")
 add_subdirectory(externs/implot)
  add_subdirectory(externs/glm)
+ add_subdirectory(externs/tinygltf)
 message("${SRC}")
 #find_package(OpenGL REQUIRED)
 
@@ -58,6 +59,7 @@ target_link_libraries(${EXCE_NAME}  PRIVATE lib_imgui)
  
 target_link_libraries(${EXCE_NAME}  PRIVATE lib_implot)
 target_link_libraries(${EXCE_NAME}  PRIVATE lib_glm)
+target_link_libraries(${EXCE_NAME}  PRIVATE lib_tiny_gltf)
 #message("GLM_LIB_DIR = ${LIB_GLM_DIR}")
 if(BUILDWASM)
 
@@ -75,7 +77,8 @@ target_link_libraries(${EXCE_NAME}  PRIVATE DDoN)
 target_link_libraries(${EXCE_NAME}  PRIVATE comp_geo_exercise) 
  #target_link_libraries(${EXCE_NAME}  PRIVATE glm)
 if(BUILDWASM)
-set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -pthread  -msimd128 -s ALLOW_MEMORY_GROWTH=1  -s  USE_WEBGL2=2 -s USE_GLFW=3  -s WASM=1 -std=c++11 -s USE_PTHREADS=1    -Wl,--shared-memory,--no-check-features  --preload-file  res    --shell-file html/shell_minimal.html")
+# -s ALLOW_MEMORY_GROWTH=1  
+set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -pthread  -msimd128 -s  USE_WEBGL2=2 -s USE_GLFW=3  -s WASM=1 -std=c++11 -s USE_PTHREADS=1    -Wl,--shared-memory,--no-check-features  --preload-file  res    --shell-file html/shell_minimal.html")
   file(COPY "res" DESTINATION ${CMAKE_BINARY_DIR})
 else()
 #set_property(TARGET ${EXCE_NAME}   PROPERTY CXX_STANDARD 11)

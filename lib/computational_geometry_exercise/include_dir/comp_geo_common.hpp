@@ -147,7 +147,10 @@ namespace lyh_cg {
         vec3 nn{ n }; nn.make_unit_vector();
         return v - 2.0 * dot(v, nn) * nn;
     }
-
+    inline bool operator==(const vec3& v1, const vec3& v2) {
+        if ((v1 - v2).squared_length() < 1e-8)return true;
+        else return false;
+    }
     bool refract(const vec3& v, const vec3& n, double n_r, vec3& refracted) {
         //default v is pointing into surface
         vec3 uv = unit_vector(v) * -1.0;
@@ -170,7 +173,7 @@ namespace lyh_cg {
     }
     inline  bool to_left(const vec3& p, const vec3& q, const vec3& s) {
      
-        return area2(p, q, s) > 0.0;
+        return area2(p, q, s) >1e-3;
     }
     inline bool in_triangle(const vec3* tri, const vec3& s) {
         bool t1 = to_left( tri[0],tri[1], s);
@@ -178,6 +181,7 @@ namespace lyh_cg {
         bool t3 = to_left( tri[2],tri[0] ,s);
         return t1 == t2 && t2 == t3;
     }
+
 }
 
 

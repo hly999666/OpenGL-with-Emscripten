@@ -35,7 +35,7 @@
 typedef  std::string string;
 namespace  lyh_gl {
 	namespace helper {
-		GLFWwindow* gl_init(unsigned int width, unsigned int height) {
+		GLFWwindow* gl_init(unsigned int width, unsigned int height,const char* title= "Hello World") {
 			glfwInit();
            #ifdef __EMSCRIPTEN__
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -49,7 +49,7 @@ namespace  lyh_gl {
 			//init window
 
 			glfwWindowHint(GLFW_VISIBLE, GL_TRUE);
-			GLFWwindow* window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
+			GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
 
 			if (window == NULL)
 
@@ -100,7 +100,7 @@ namespace  lyh_gl {
 				glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
 				std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" <<
 					infoLog << std::endl;
-				exit(-1);
+				//exit(-1);
 			}
 			unsigned int fragmentShader;
 			auto fs_ptr = fragmentShaderSource.c_str();
@@ -117,7 +117,7 @@ namespace  lyh_gl {
 				glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
 				std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" <<
 					infoLog << std::endl;
-				exit(-1);
+				//exit(-1);
 			}
 
 			unsigned int shaderProgram;
@@ -133,7 +133,7 @@ namespace  lyh_gl {
 				glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
 				std::cout << "ERROR::SHADER::SHADERPROGRAM::LINKING_FAILED\n" <<
 					infoLog << std::endl;
-				exit(-1);
+				//exit(-1);
 			}
 			glDeleteShader(vertexShader);
 			glDeleteShader(fragmentShader);
@@ -268,22 +268,24 @@ namespace  lyh_gl {
 			texture_info info;
 			std::string status{ "N/A" };
 			std::thread* loading_thread;
-			gl_texture(const std::string _path, const std::string mode = "async", GLenum input_format = GL_RGB) {
+			std::string name_in_shader{ "N/A" };
+			gl_texture(const std::string _path, const std::string mode = "async", GLenum input_format = GL_RGB, std::string _name_in_shader = "N/A",bool isFlipY=true)
+				: name_in_shader(_name_in_shader) {
 
 				glGenTextures(1, &texture_id);
 				glBindTexture(GL_TEXTURE_2D, texture_id);
 
 				name = _path;
 #ifdef __EMSCRIPTEN__
-				path = "res/texture/" + _path;
+				path = "res/" + _path;
 #else
 				auto cwd = boost::filesystem::current_path();
-				path = cwd.string() + "/res/texture/" + _path;
+				path = cwd.string() + "/res/" + _path;
 #endif
 				//std::thread t1(loadTexture_async, f_path, texture, window, input_format, input_type);t1.detach();
 				std::packaged_task<texture_info()> task([&] {
 					texture_info tex_1_info;
-					stbi_set_flip_vertically_on_load(true);
+					if(isFlipY)stbi_set_flip_vertically_on_load(true);
 					auto _p = path;
 					tex_1_info.data = stbi_load(path.c_str(), &tex_1_info.width, &tex_1_info.height, &tex_1_info.nrChannels, 0);
 					return tex_1_info;

@@ -240,9 +240,9 @@ int main()
 
         auto name = "Plot_windows";
         ImPlot::GetStyle().AntiAliasedLines = true;
-        ImGui::Begin("Tree_Line_Plot");
+        ImGui::Begin("Convex hull");
         ImPlot::SetNextPlotLimits(-1, 1, -1, 1, ImGuiCond_Always);
-        int case_size =40;
+        int case_size =100;
         if (ImPlot::BeginPlot("Plot_1", "x", "y", { 1024,1024 })) {
             //x_pos.clear(); y_pos.clear();
             //DDoN::fractalTree2D_Basic(glm::radians(theta) * 0.5, s, x_pos, y_pos);
