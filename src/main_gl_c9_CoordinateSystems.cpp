@@ -183,7 +183,7 @@ int main()
 
 	//cleanup glfw
 
-
+	std::function<void(int,int)> f = [](int x,int y)->void {};
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
