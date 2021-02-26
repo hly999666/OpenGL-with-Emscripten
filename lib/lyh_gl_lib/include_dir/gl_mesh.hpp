@@ -41,8 +41,6 @@
 #include "gl_shading.hpp"
 #define TINYGLTF_IMPLEMENTATION
 #define  TINYGLTF_NO_EXTERNAL_IMAGE
- 
-
 #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
 #include "tiny_gltf.h"
 typedef  std::string string;
@@ -62,7 +60,7 @@ namespace lyh_gl {
 		// mesh data
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
-		std::vector<	std::shared_ptr< lyh_gl::helper::gl_texture>> textures;
+		std::vector<	std::weak_ptr< lyh_gl::helper::gl_texture>> textures;
 		GLuint VAO;
 		GLuint EBO;
 		GLuint VBO;
@@ -74,10 +72,20 @@ namespace lyh_gl {
 			vertices = std::move(vertices);
 			indices = std::move(indices); ;
 			textures = std::move(textures);
-
 			setupMesh();
-
 		};
+		gl_mesh(gl_mesh&& pre_mesh) {
+			vertices= std::move(pre_mesh.vertices);
+			indices= std::move(pre_mesh.indices);
+			textures= std::move(pre_mesh.textures);
+			VAO = pre_mesh.VAO;
+			EBO = pre_mesh.EBO;
+			VBO = pre_mesh.VBO;
+			pre_mesh.VAO = NULL;
+			pre_mesh.EBO = NULL;
+			pre_mesh.VBO = NULL;
+			//delete &pre_mesh;
+		}
 		~gl_mesh() {
 			glDeleteVertexArrays(1, &VAO);
 			glDeleteBuffers(1,&VBO);
@@ -86,10 +94,12 @@ namespace lyh_gl {
 		void Draw(lyh_gl::shading::Shader& shader) {
 			 //shader.use();
 			 for (auto& tex : textures) {
-			 	if (tex->name_in_shader == "N/A")continue;
-			 shader.bindTex(tex->name_in_shader, *tex);
+				 auto tex_shared_ptr = tex.lock();
+				
+			 	if (tex_shared_ptr->name_in_shader == "N/A")continue;
+			 shader.bindTex(tex_shared_ptr->name_in_shader, *tex_shared_ptr);
 			}
-
+			
 			glBindVertexArray(VAO);
 			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
@@ -186,7 +196,7 @@ namespace lyh_gl {
 	};
 
 
-	std::vector<std::shared_ptr<gl_mesh>> loadModelGLTF(std::string path) {
+	std::vector<gl_mesh> loadModelGLTF(std::string path) {
 		using namespace tinygltf;
 		Model model;
 		TinyGLTF loader;
@@ -207,7 +217,7 @@ namespace lyh_gl {
 	 
 		bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, f_path.c_str());
 		//bool ret = loader.LoadBinaryFromFile(&model, &err, &warn, argv[1]); // for binary glTF(.glb)
-		std::vector<std::shared_ptr<gl_mesh>>result;
+		std::vector<gl_mesh>result;
 		if (!warn.empty()) {
 			printf("Warn: %s\n", warn.c_str());
 		}
@@ -224,28 +234,29 @@ namespace lyh_gl {
 	
 		for (auto& mesh : model.meshes) {
 			std::vector<Vertex> vertices; std::vector<unsigned int> indices;
-			auto now_mesh = std::make_shared<gl_mesh>();
+			//auto now_mesh = std::make_shared<gl_mesh>();
+			gl_mesh  now_mesh;
 			for (auto& primitive : mesh.primitives) {
 				 GLenum mode = primitive.mode;
 				 auto& index_accessor = model.accessors[primitive.indices];
 			     auto& index_bufferView= model.bufferViews[index_accessor.bufferView];
 				 auto& index_buffer  = model.buffers[index_bufferView.buffer];
-				 now_mesh->bufferIndices(index_accessor, index_bufferView, index_buffer);
+				 now_mesh.bufferIndices(index_accessor, index_bufferView, index_buffer);
 				 auto& attrib_1 = primitive.attributes;
 				 auto& acc_1 = model.accessors[attrib_1["POSITION"]];
 				 int count = acc_1.count;
-				 now_mesh->vertices.resize(count);
+				 now_mesh.vertices.resize(count);
 				 for (auto& attribute : primitive.attributes) {
 					 auto& name = attribute.first;
 					 auto& attribute_accessor = model.accessors[attribute.second];
 					 auto& attribute_bufferView = model.bufferViews[attribute_accessor.bufferView];
 					 auto& attribute_buffer = model.buffers[attribute_bufferView.buffer];
-					 now_mesh->bufferAttributes(attribute_accessor, attribute_bufferView, attribute_buffer, name);
+					 now_mesh.bufferAttributes(attribute_accessor, attribute_bufferView, attribute_buffer, name);
 				 }
-				 now_mesh->setupMesh();
+				 now_mesh.setupMesh();
 				 //tex_diffuse->loading_thread_join_blocking();
 				 //now_mesh->textures.push_back(tex_diffuse);
-				 result.push_back(now_mesh);
+				 result.push_back(std::move(now_mesh));
 
 			}
 		

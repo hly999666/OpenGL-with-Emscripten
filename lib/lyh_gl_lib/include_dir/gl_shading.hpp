@@ -84,6 +84,15 @@ namespace  lyh_gl {
 					glUniform3f(loc,x,y,z);
 				}
 			};
+			inline void setVec2(const std::string& name, float x, float y) const {
+				{
+					auto loc = glGetUniformLocation(ID, name.c_str());
+					if (loc == -1) {
+						std::cout << "No unform " << name << std::endl; return;
+					}
+					glUniform2f(loc, x, y);
+				}
+			};
 			inline void setVec4(const std::string& name, float x, float y, float z,float w) const {
 				{
 					auto loc = glGetUniformLocation(ID, name.c_str());

@@ -38,6 +38,7 @@
 /CMakeFiles
 /out
 /.vs
-/res
- 
-
+/res/font
+/res/model
+/res/texture 
+/bin
