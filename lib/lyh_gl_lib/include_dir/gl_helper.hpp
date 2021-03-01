@@ -487,7 +487,13 @@ namespace  lyh_gl {
 				Up = glm::normalize(glm::cross(Right, Front));
 			};
 		};
-	
+		//TODO abstract  framebuffer
+		class Framebuffer {
+
+
+
+
+		};
 	
 	
 	}

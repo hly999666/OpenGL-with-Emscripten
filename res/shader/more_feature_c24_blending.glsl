@@ -22,18 +22,14 @@ uniform sampler2D tex_1;
 uniform int mode;
 uniform float discard_threshold;
 in vec2 TexCoords;
-
 out vec4 FragColor;
-
 void main()
 {
     vec4 texColor = texture(tex_1, TexCoords);
     if(mode==1){
        if(texColor.a < discard_threshold){
            discard;
-          
        }
-   
     }
     FragColor = texColor;
 }

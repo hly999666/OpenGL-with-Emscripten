@@ -6,7 +6,7 @@ set(EXCE_NAME "opengl_test_0")
 #find_package(glm CONFIG REQUIRED)
 
 #set(GLM_DIR  "${CMAKE_SOURCE_DIR}externs/glm/cmake/glm")
- 
+set(BUILD_TORCH OFF)
 
 if(BUILDWASM)
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/externs/")
@@ -18,7 +18,7 @@ endif()
 #message(STATUS "GLM included at ${GLM_INCLUDE_DIR}")
 set(SRC 
 #src/main_gl_c7_Textures.cpp
-src/main_gl_c24_Blending.cpp
+src/main_gl_c25-c26_face_culling_and_framebuffer.cpp
 #src/main_fractalTree2D_Basic.cpp
 )
 
@@ -39,10 +39,18 @@ message("${SRC}")
 if(BUILDWASM)
 set(CMAKE_EXECUTABLE_SUFFIX ".html")
 else()
+
 find_package(GLEW REQUIRED)
 #add_subdirectory(lib/glad)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(Boost REQUIRED filesystem)
+if(BUILD_TORCH)
+set(CUDA_PATH "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2" )
+set(CUDNN_INCLUDE_DIR "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2/include" )
+set(CUDNN_LIBRARY_PATH "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2/lib/x64/cudnn.lib" )
+set(Torch_DIR "E:/Program/libtorch/share/cmake/Torch")
+find_package(Torch REQUIRED)
+endif()
 endif()
 #add_subdirectory(lib/imgui)
 add_subdirectory(lib/05_dir)
@@ -56,10 +64,10 @@ add_executable(${EXCE_NAME}
      ) 
 
 target_link_libraries(${EXCE_NAME}  PRIVATE lib_imgui)
- 
 target_link_libraries(${EXCE_NAME}  PRIVATE lib_implot)
 target_link_libraries(${EXCE_NAME}  PRIVATE lib_glm)
 target_link_libraries(${EXCE_NAME}  PRIVATE lib_tiny_gltf)
+
 #message("GLM_LIB_DIR = ${LIB_GLM_DIR}")
 if(BUILDWASM)
 
@@ -69,23 +77,31 @@ else()
     target_link_libraries(${EXCE_NAME}  PRIVATE GLEW::GLEW)
     target_link_libraries(${EXCE_NAME}  PRIVATE glfw)
     target_link_libraries(${EXCE_NAME} PRIVATE Boost::boost Boost::filesystem)
+    if(BUILD_TORCH)
+    target_link_libraries(${EXCE_NAME} PUBLIC "${TORCH_LIBRARIES}")
+    endif()
    endif()
 #target_link_libraries(${EXCE_NAME}  PRIVATE glm)  
 target_link_libraries(${EXCE_NAME}  PRIVATE Operator_OverLoading)
 target_link_libraries(${EXCE_NAME}  PRIVATE lyh_gl_lib)
 target_link_libraries(${EXCE_NAME}  PRIVATE DDoN)
 target_link_libraries(${EXCE_NAME}  PRIVATE comp_geo_exercise) 
+ 
+
+    
+link_directories("E:/Program/libtorch/lib")
+
  #target_link_libraries(${EXCE_NAME}  PRIVATE glm)
 if(BUILDWASM)
 # -s ALLOW_MEMORY_GROWTH=1  
-set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -pthread  -msimd128 -s  USE_WEBGL2=2 -s USE_GLFW=3  -s WASM=1 -std=c++11 -s USE_PTHREADS=1    -Wl,--shared-memory,--no-check-features  --preload-file  res    --shell-file html/shell_minimal.html")
+set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -pthread  -msimd128 -s  USE_WEBGL2=2 -s USE_GLFW=3  -s WASM=1 -std=c++14 -s USE_PTHREADS=1    -Wl,--shared-memory,--no-check-features  --preload-file  res    --shell-file html/shell_minimal.html")
   file(COPY "res" DESTINATION ${CMAKE_BINARY_DIR})
 else()
 #set_property(TARGET ${EXCE_NAME}   PROPERTY CXX_STANDARD 11)
   file(COPY "res" DESTINATION ${CMAKE_BINARY_DIR})
 
  target_compile_options(${EXCE_NAME} PRIVATE -mavx)
-
+ set_property(TARGET ${EXCE_NAME} PROPERTY CXX_STANDARD 14)
 endif()
 
 
