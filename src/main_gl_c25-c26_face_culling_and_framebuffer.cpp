@@ -164,7 +164,7 @@ int main()
  
 
 	lyh_gl::shading::Shader blending_shader("more_feature_c24_blending.glsl");
-	lyh_gl::shading::Shader screen_shader("more_feature_c25_framebuffer.glsl");
+	lyh_gl::shading::Shader screen_shader("more_feature_c26_framebuffer.glsl");
 
 	//build geometry
 	unsigned int cubeVAO, cubeVBO;

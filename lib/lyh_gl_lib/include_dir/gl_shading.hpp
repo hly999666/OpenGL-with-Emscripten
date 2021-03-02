@@ -150,8 +150,8 @@ namespace  lyh_gl {
 				tex_unit_table[name] = texture_used_id;
 				texture_used_id++;
 			};
-
-			inline void bindTex(const std::string& name_in_shader, const lyh_gl::helper::gl_texture& tex) {
+			//TODO bindTex can input cube map
+			inline void bindTex(const std::string& name_in_shader, const lyh_gl::helper::gl_texture& tex,GLenum type= GL_TEXTURE_2D) {
 				auto tex_unit_id = tex_unit_table[tex.name];
 				auto loc = glGetUniformLocation(ID, name_in_shader.c_str());
 				if (loc == -1) {
@@ -159,7 +159,7 @@ namespace  lyh_gl {
 					return;
 				}
 				glActiveTexture(GL_TEXTURE0 + tex_unit_id);
-				glBindTexture(GL_TEXTURE_2D, tex.texture_id);
+				glBindTexture(type, tex.texture_id);
 				glUniform1i(loc, tex_unit_id);
 				//glBindTexture(GL_TEXTURE_2D, NULL);
 			};
