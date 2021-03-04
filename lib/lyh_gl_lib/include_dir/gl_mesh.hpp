@@ -97,6 +97,7 @@ namespace lyh_gl {
 				 auto tex_shared_ptr = tex.lock();
 				
 			 	if (tex_shared_ptr->name_in_shader == "N/A")continue;
+				if(shader.tex_unit_table.find(tex_shared_ptr->name)== shader.tex_unit_table.end())continue;
 			 shader.bindTex(tex_shared_ptr->name_in_shader, *tex_shared_ptr);
 			}
 			

@@ -276,14 +276,14 @@ int main()
             
                 ImPlot::PlotScatter(type.c_str(), point_x.data(), point_y.data(), point_x.size());
                 //lyh_cg::convex_hull_Granham_Scan(point_x, point_y, point_ch_x, point_ch_y);
-                if(point_x.size() >2)gmp::hw1::lagrange_polynomial_base(point_x, point_y, point_output_x, point_output_y, sample_num);
+                /*if(point_x.size() >2)gmp::hw1::lagrange_polynomial_base(point_x, point_y, point_output_x, point_output_y, sample_num);
                 if (point_output_x.size() > 0) {
                     ImPlot::PlotLine("lagrange_polynomial_base", point_output_x.data(), point_output_y.data(), point_output_x.size());
                 
-                }
+                }*/
                 if (point_x.size() > 2)gmp::hw1::lagrange_polynomial(point_x, point_y, point_output_x, point_output_y, sample_num);
                 if (point_output_x.size() > 0) {
-                    ImPlot::PlotLine("lagrange_polynomial_neo", point_output_x.data(), point_output_y.data(), point_output_x.size());
+                    ImPlot::PlotLine("lagrange_polynomial", point_output_x.data(), point_output_y.data(), point_output_x.size());
 
                 }
             }

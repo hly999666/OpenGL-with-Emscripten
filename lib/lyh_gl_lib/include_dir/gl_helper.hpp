@@ -84,7 +84,7 @@ namespace  lyh_gl {
 			glfwTerminate();
 			exit(EXIT_SUCCESS);
 		}
-		unsigned int buildShaderProgram(const std::string& vertexShaderSource, const std::string& fragmentShaderSource) {
+		unsigned int buildShaderProgram(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const std::string& geometryShaderSource) {
 			unsigned int vertexShader;
 			vertexShader = glCreateShader(GL_VERTEX_SHADER);
 			auto vs_ptr = vertexShaderSource.c_str();
@@ -119,13 +119,28 @@ namespace  lyh_gl {
 					infoLog << std::endl;
 				//exit(-1);
 			}
-
+			unsigned int geometryShader=NULL;
+			if (geometryShaderSource.size()!=0) {
+				const char* gShaderCode = geometryShaderSource.c_str();
+				geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+				glShaderSource(geometryShader, 1, &gShaderCode, NULL);
+				glCompileShader(geometryShader);
+				glGetShaderiv(geometryShader, GL_COMPILE_STATUS, &success);
+				if (!success)
+				{
+					glGetShaderInfoLog(geometryShader, 512, NULL, infoLog);
+					std::cout << "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n" <<
+						infoLog << std::endl;
+					//exit(-1);
+				}
+			}
 			unsigned int shaderProgram;
 			shaderProgram = glCreateProgram();
 
 			glAttachShader(shaderProgram, vertexShader);
 			glAttachShader(shaderProgram, fragmentShader);
-
+			if (geometryShaderSource.size() != 0)
+				glAttachShader(shaderProgram, geometryShader);
 			glLinkProgram(shaderProgram);
 
 			glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
@@ -137,9 +152,10 @@ namespace  lyh_gl {
 			}
 			glDeleteShader(vertexShader);
 			glDeleteShader(fragmentShader);
+			glDeleteShader(geometryShader);
 			return shaderProgram;
 		};
-		bool  parseShader(const std::string path, std::string& out_vs, std::string& out_fs) {
+		bool  parseShader(const std::string path, std::string& out_vs, std::string& out_fs,std::string& out_gs) {
 
 			std::ifstream fs;
 #ifdef __EMSCRIPTEN__
@@ -151,7 +167,7 @@ namespace  lyh_gl {
 
 			//std::ifstream fs; fs.open("/res/preload-file/shader/" + path);
 			std::string now_line;
-			std::stringstream ss_vs; std::stringstream ss_fs;
+			std::stringstream ss_vs; std::stringstream ss_fs; std::stringstream ss_gs;
 			char now_t = 'n';
 			while (std::getline(fs, now_line)) {
 				//std::cout << now_line << std::endl;
@@ -162,13 +178,18 @@ namespace  lyh_gl {
 					else if (now_line.find("fragment") != std::string::npos) {
 						now_t = 'f';
 					}
+					else if (now_line.find("geometry") != std::string::npos) {
+						now_t = 'g';
+					}
 					continue;
 				}
 				if (now_t == 'v')ss_vs << now_line << std::endl;
 				if (now_t == 'f') ss_fs << now_line << std::endl;
+				if (now_t == 'g') ss_gs << now_line << std::endl;
 			}
 			out_vs = ss_vs.str();
 			out_fs = ss_fs.str();
+			out_gs = ss_gs.str();
 			if (out_vs.size() == 0 || out_fs.size() == 0) return false;
 			else return true;
 		}

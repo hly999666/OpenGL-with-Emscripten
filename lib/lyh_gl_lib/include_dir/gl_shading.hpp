@@ -35,11 +35,12 @@ namespace  lyh_gl {
 			Shader(const std::string& path) :texture_used_id(0), isLoaded(false) {
 				std::string vs_src;
 				std::string fs_src;
-				if (!helper::parseShader(path, vs_src, fs_src)) {
+				std::string gs_src;
+				if (!helper::parseShader(path, vs_src, fs_src, gs_src)) {
 					std::cout << "parseShader error" << std::endl;
 					return;
 				}
-				ID = helper::buildShaderProgram(vs_src, fs_src);
+				ID = helper::buildShaderProgram(vs_src, fs_src, gs_src);
 			};
 			// use/activate the shader
 			~Shader() {
