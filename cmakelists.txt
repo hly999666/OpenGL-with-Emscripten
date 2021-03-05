@@ -18,7 +18,7 @@ endif()
 #message(STATUS "GLM included at ${GLM_INCLUDE_DIR}")
 set(SRC 
 #src/main_gl_c7_Textures.cpp
-src/main_gl_c30_Geometry_Shader.cpp
+src/main_gl_c31_Instancing.cpp
 #src/main_fractalTree2D_Basic.cpp
 )
 
@@ -90,9 +90,9 @@ target_link_libraries(${EXCE_NAME}  PRIVATE DDoN)
 target_link_libraries(${EXCE_NAME}  PRIVATE comp_geo_exercise) 
 target_link_libraries(${EXCE_NAME}  PRIVATE games201_hw) 
 
-    
+if(BUILD_TORCH)    
 link_directories("E:/Program/libtorch/lib")
-
+endif()
  #target_link_libraries(${EXCE_NAME}  PRIVATE glm)
 if(BUILDWASM)
 # -s ALLOW_MEMORY_GROWTH=1  
