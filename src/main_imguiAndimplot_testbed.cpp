@@ -8,7 +8,7 @@
 #include <GLFW/glfw3.h>
 #include <functional>
 #include <iostream>
- 
+#include<cstdio>
 #ifdef __EMSCRIPTEN__
 #define GLM_FORCE_SIMD_AVX 
 #else
@@ -98,67 +98,96 @@ unsigned int buildShader() {
 }
 std::function<void()> loop;
 void main_loop() { loop(); }
+
+class point2Di {
+public:
+    int x{ 0 };
+    int y{ 0 };
+    point2Di(int _x = 0, int _y = 0) :x(_x), y(_y) {};
+};
+void convex_hull(std::vector<float>& point_ch_x,std::vector<float>& point_ch_y) {
+    int count = 0;
+    scanf("%d", &count);
+    std::vector<point2Di>points; points.resize(count);
+    for (int i = 0; i < count; i++) {
+        int x = 0; int y = 0;
+        scanf("%d %d", &x,&y);
+        points[i].x = x;
+        points[i].y = y;
+    }
+    int a = 666;
+}
 int main()
 {
-    // glfw: initialize and configure
-    // ------------------------------
-    glfwInit();  
- 
     const char* glsl_version = "#version 300 es";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
- 
-    // glfw window creation
-    // --------------------
-    GLFWwindow* window = glfwCreateWindow(1920, 1080, "Basic_Fractal_Tree2D", NULL, NULL);
-    if (window == NULL)
+    GLFWwindow* window = nullptr;
     {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+        // glfw: initialize and configure
+// ------------------------------
+        glfwInit();
 
-    // glad: load all OpenGL function pointers
-    // ---------------------------------------
+      
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+
+        // glfw window creation
+        // --------------------
+          window = glfwCreateWindow(1920, 1080, "Basic_Fractal_Tree2D", NULL, NULL);
+        if (window == NULL)
+        {
+            std::cout << "Failed to create GLFW window" << std::endl;
+            glfwTerminate();
+            return -1;
+        }
+        glfwMakeContextCurrent(window);
+        glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+        // glad: load all OpenGL function pointers
+        // ---------------------------------------
 #ifdef __EMSCRIPTEN__
 #else
-    bool err = glewInit() != GLEW_OK;
-    if (err) {
-        std::cout << "GLEW_ERR" << std::endl;
-    }
+        bool err = glewInit() != GLEW_OK;
+        if (err) {
+            std::cout << "GLEW_ERR" << std::endl;
+        }
 #endif
+    }
+
+    std::vector<float> point_ch_x;   std::vector<float> point_ch_y;
+    convex_hull(point_ch_x, point_ch_y);
+
+
+
 
     auto shaderProgram = buildShader();
 
-    // set up vertex data (and buffer(s)) and configure vertex attributes
-    // ------------------------------------------------------------------
-    float vertices[] = {
-        // positions         // colors
-         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // bottom left
-         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // top 
-
-    };
-
     unsigned int VBO, VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-    glBindVertexArray(VAO);
+    {
+        float vertices[] = {
+            // positions         // colors
+             0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // bottom right
+            -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // bottom left
+             0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // top 
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        };
 
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+       
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+
+        glBindVertexArray(VAO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+    }
 
 
     auto draw_tri = [&]() {
@@ -173,17 +202,7 @@ int main()
         glBindVertexArray((GLuint)NULL);
         glUseProgram((GLuint)NULL);
     };
-   //IMGUI_CHECKVERSION();
-    /*ImGui::CreateContext();
-    ImPlot::CreateContext();
-
-
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-    ImGui::StyleColorsDark();
-
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);*/
+ 
     lyh_gl::ui::set_up(window, glsl_version);
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     auto font_1 = io.Fonts->AddFontFromFileTTF("./res/font/Roboto-Medium.ttf",20.0f);
@@ -196,7 +215,7 @@ int main()
     float x_data[6] = { 1,2,2,3,4,6 };
     float y_data[6] = { 1,2,2,3,4,6 };
     std::vector<float> point_x;   std::vector<float> point_y;
-    std::vector<float> point_ch_x;   std::vector<float> point_ch_y;
+  
     std::vector<float>x_pos; std::vector<float>y_pos;
     float theta = 80.0f;    float s = 0.577;
     loop = [&] {
@@ -218,25 +237,28 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         ImGui::PushFont(font_1);
-        //ImGui::ShowDemoWindow();
+        {
 
-        //ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-        //ImGui::Text("Hello from another window!");
-        //if (ImGui::Button("Close Me"))
-        //    show_another_window = false;
-        //ImGui::End();
+            //ImGui::ShowDemoWindow();
+
+      //ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+      //ImGui::Text("Hello from another window!");
+      //if (ImGui::Button("Close Me"))
+      //    show_another_window = false;
+      //ImGui::End();
 
 
-        //ImPlot::ShowDemoWindow();
+      //ImPlot::ShowDemoWindow();
 
-        //ImGui::SetNextWindowPos({ 32,50 });
-        //ImGui::SetNextWindowSize({ 256,128 });
-        //ImGui::Begin("Control");
-        //ImGui::SliderFloat("theta", &theta, 0, 180);
-        //ImGui::SliderFloat("S", &s, 0, sqrt(2) * 0.5);
-        //ImGui::End();
-        //ImGui::SetNextWindowPos({ 320,50 });
-        //ImGui::SetNextWindowSize({ 1024,1024 });
+      //ImGui::SetNextWindowPos({ 32,50 });
+      //ImGui::SetNextWindowSize({ 256,128 });
+      //ImGui::Begin("Control");
+      //ImGui::SliderFloat("theta", &theta, 0, 180);
+      //ImGui::SliderFloat("S", &s, 0, sqrt(2) * 0.5);
+      //ImGui::End();
+      //ImGui::SetNextWindowPos({ 320,50 });
+       //ImGui::SetNextWindowSize({ 1024,1024 });
+        }
 
         auto name = "Plot_windows";
         ImPlot::GetStyle().AntiAliasedLines = true;

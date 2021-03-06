@@ -27,7 +27,7 @@ in VS_OUT {
 
 out vec2 TexCoords; 
 
-uniform float time;
+ 
 uniform float exploding_dist;
 vec4 explode(vec4 position, vec3 normal)
 {
