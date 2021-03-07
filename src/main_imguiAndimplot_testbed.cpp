@@ -103,7 +103,8 @@ class point2Di {
 public:
     int x{ 0 };
     int y{ 0 };
-    point2Di(int _x = 0, int _y = 0) :x(_x), y(_y) {};
+    int id{ -1 };
+    point2Di(int _x = 0, int _y = 0,int _id=-1) :x(_x), y(_y), id(_id){};
 };
 void convex_hull(std::vector<float>& point_ch_x,std::vector<float>& point_ch_y) {
     int count = 0;
@@ -114,8 +115,61 @@ void convex_hull(std::vector<float>& point_ch_x,std::vector<float>& point_ch_y) 
         scanf("%d %d", &x,&y);
         points[i].x = x;
         points[i].y = y;
+        points[i].id = i+1;
     }
     int a = 666;
+
+    auto comp_llt = [](const point2Di& v1, const point2Di& v2)->bool {
+         
+        if (v1.y> v2.y)return true;
+        if (v1.y< v2.y)return false;
+        if (v1.x> v2.x)return true;
+        if (v1.x < v2.x)return false;
+        return false;
+    };
+
+    auto llt_itr = std::min_element(points.begin(), points.end(), comp_llt);
+    const auto const_llt = *llt_itr;
+    auto back_itr = points.end() - 1;
+    std::swap(*llt_itr, *back_itr);
+    points.pop_back();
+
+    auto area2 = [](const point2Di& p, const point2Di& q, const point2Di& s)->int {
+
+        return p.x * q.y - p.y * q.x
+            + q.x * s.y - q.y * s.x
+            + s.x * p.y - s.y * p.x;
+    };
+
+    auto  to_left = [area2](const point2Di& p, const point2Di& q, const point2Di& s)->bool {
+
+        return area2(p, q, s) >= 0;
+    };
+    auto comp_to_left_llt = [&const_llt, area2](const point2Di& v1, const point2Di& v2)->bool {
+        //TODO Check conditional near equal,i.e three point in a line,will have problem with numerical precision
+        auto area = area2(const_llt, v1, v2);
+        if (area > 0.0)return false;
+        if (area < 0.0)return true;
+        return true;
+    };
+
+    std::sort(points.begin(), points.end(), [comp_to_left_llt](const point2Di& v1, const point2Di& v2)->bool {return !comp_to_left_llt(v1,v2); });
+    std::vector<point2Di>current_result;
+    current_result.push_back(const_llt); current_result.push_back(points.back());
+    points.pop_back();
+    while (!points.empty()) {
+        auto back = points.back(); points.pop_back();
+        while (to_left(*(current_result.end() - 2), *(current_result.end() - 1), back)) {
+            current_result.pop_back();
+        }
+        current_result.push_back(back);
+    }
+    //output
+    printf("%d   // ( %d", current_result.size()+1, current_result[0].id);
+    for (int i = current_result.size() - 1; i >= 1;i--) {
+        printf(" x %d", current_result[i].id);
+    }
+    printf(" ) %% (%d + 1)\n", count);
 }
 int main()
 {
@@ -263,7 +317,7 @@ int main()
         auto name = "Plot_windows";
         ImPlot::GetStyle().AntiAliasedLines = true;
         ImGui::Begin("Convex hull");
-        ImPlot::SetNextPlotLimits(-1, 1, -1, 1, ImGuiCond_Always);
+        ImPlot::SetNextPlotLimits(-10, 10, -10, 10, ImGuiCond_Always);
         int case_size =100;
         if (ImPlot::BeginPlot("Plot_1", "x", "y", { 1024,1024 })) {
             //x_pos.clear(); y_pos.clear();
@@ -273,27 +327,36 @@ int main()
             //plot click point
             std::string type = "Point";
             if (ImGui::IsMouseClicked(1)) {
-                auto pos = ImPlot::GetPlotMousePos();
+                /*auto pos = ImPlot::GetPlotMousePos();
               if (point_x.size() == case_size && point_y.size()== case_size) {
                 point_x.clear(); point_y.clear();
 
             }
                 point_x.push_back(pos.x); point_y.push_back(pos.y);
 
-            }
-           
-             
-       
-            if (point_x.size() > 0 && point_y.size() > 0) {
-            
-                ImPlot::PlotScatter(type.c_str(), point_x.data(), point_y.data(), point_x.size());
-                lyh_cg::convex_hull_Granham_Scan(point_x, point_y, point_ch_x, point_ch_y);
-                if (point_ch_x.size() > 0) {
-                    ImPlot::PlotLine("Convex Hull", point_ch_x.data(), point_ch_y.data(), point_ch_x.size());
-                
+            }*/
+                point_x.clear(); point_y.clear();
+                point_x.push_back(7);  point_y.push_back(9);
+                point_x.push_back(-8);  point_y.push_back(-1);
+                point_x.push_back(-3);  point_y.push_back(-1);
+                point_x.push_back(1);  point_y.push_back(4);
+                point_x.push_back(-3);  point_y.push_back(9);
+                point_x.push_back(6);  point_y.push_back(-4);
+                point_x.push_back(7);  point_y.push_back(5);
+                point_x.push_back(6);  point_y.push_back(6);
+                point_x.push_back(-6);  point_y.push_back(10);
+                point_x.push_back(0);  point_y.push_back(8);
+
+
+                if (point_x.size() > 0 && point_y.size() > 0) {
+
+                    ImPlot::PlotScatter(type.c_str(), point_x.data(), point_y.data(), point_x.size());
+                    lyh_cg::convex_hull_Granham_Scan(point_x, point_y, point_ch_x, point_ch_y);
+                    if (point_ch_x.size() > 0) {
+                        ImPlot::PlotLine("Convex Hull", point_ch_x.data(), point_ch_y.data(), point_ch_x.size());
+                    }
                 }
             }
-
        
 
 
