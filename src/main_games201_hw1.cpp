@@ -200,9 +200,10 @@ int main()
     std::vector<float> point_x;   std::vector<float> point_y;
     std::vector<float> point_output_x;   std::vector<float> point_output_y;
     std::vector<float>x_pos; std::vector<float>y_pos;
-    float theta = 80.0f;    float s = 0.577;
+       float s = 0.577;
 
     int sample_num = 64;
+    float theta = 2;
     loop = [&] {
 
       
@@ -242,10 +243,11 @@ int main()
         //ImGui::SetNextWindowPos({ 320,50 });
         //ImGui::SetNextWindowSize({ 1024,1024 });
         ImGui::SetNextWindowPos({ 32,50 });
-        ImGui::SetNextWindowSize({ 400,64 });
+        ImGui::SetNextWindowSize({ 400,128 });
    
         ImGui::Begin("Control");
         ImGui::SliderInt("sample num", &sample_num, 16, 512);
+        ImGui::SliderFloat("theta", &theta, 0, 16.0);
         ImGui::End();
         auto name = "Plot_windows";
         ImPlot::GetStyle().AntiAliasedLines = true;
@@ -275,17 +277,18 @@ int main()
             if (point_x.size() > 0 && point_y.size() > 0) {
             
                 ImPlot::PlotScatter(type.c_str(), point_x.data(), point_y.data(), point_x.size());
-                //lyh_cg::convex_hull_Granham_Scan(point_x, point_y, point_ch_x, point_ch_y);
-                /*if(point_x.size() >2)gmp::hw1::lagrange_polynomial_base(point_x, point_y, point_output_x, point_output_y, sample_num);
-                if (point_output_x.size() > 0) {
-                    ImPlot::PlotLine("lagrange_polynomial_base", point_output_x.data(), point_output_y.data(), point_output_x.size());
-                
-                }*/
+               
                 if (point_x.size() > 2)gmp::hw1::lagrange_polynomial(point_x, point_y, point_output_x, point_output_y, sample_num);
                 if (point_output_x.size() > 0) {
-                    ImPlot::PlotLine("lagrange_polynomial", point_output_x.data(), point_output_y.data(), point_output_x.size());
+                    ImPlot::PlotLine("lagrange", point_output_x.data(), point_output_y.data(), point_output_x.size());
 
                 }
+                if (point_x.size() > 2)gmp::hw1::gauss(point_x, point_y, point_output_x, point_output_y, sample_num, theta);
+                if (point_output_x.size() > 0) {
+                    ImPlot::PlotLine("gauss", point_output_x.data(), point_output_y.data(), point_output_x.size());
+
+                }
+               
             }
 
        
