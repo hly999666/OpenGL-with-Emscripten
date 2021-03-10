@@ -18,7 +18,7 @@ endif()
 #message(STATUS "GLM included at ${GLM_INCLUDE_DIR}")
 set(SRC 
 #src/main_gl_c7_Textures.cpp
-src/main_gl_c35_shadow_mapping.cpp
+src/main_gl_c36_point_shadows.cpp
 #src/main_fractalTree2D_Basic.cpp
 )
 
@@ -101,6 +101,7 @@ set_target_properties(${EXCE_NAME}  PROPERTIES LINK_FLAGS  "-O2 -pthread  -msimd
 else()
 #set_property(TARGET ${EXCE_NAME}   PROPERTY CXX_STANDARD 11)
   file(COPY "res" DESTINATION ${CMAKE_BINARY_DIR})
+
 
  target_compile_options(${EXCE_NAME} PRIVATE -mavx)
  set_property(TARGET ${EXCE_NAME} PROPERTY CXX_STANDARD 14)
