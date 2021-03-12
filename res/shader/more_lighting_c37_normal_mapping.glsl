@@ -59,11 +59,11 @@ uniform sampler2D normalMap;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
-
+uniform float normal_intense;
 void main()
 {           
    
-    vec3 normal = texture(normalMap, fs_in.TexCoords).rgb;
+    vec3 normal = texture(normalMap, fs_in.TexCoords).rgb*normal_intense;
     // transform normal vector to range [-1,1]
     normal = normalize(normal * 2.0 - 1.0);  
    
