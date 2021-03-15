@@ -87,7 +87,7 @@ int main()
      
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
-	GLFWwindow* window = lyh_gl::helper::gl_init(width, height,"normal mapping");
+	GLFWwindow* window = lyh_gl::helper::gl_init(width, height,"parallax mapping");
 
 	//set up UI
 	{
@@ -259,7 +259,7 @@ int main()
  
 	auto wall_diffuse = std::make_shared<lyh_gl::helper::gl_texture>("texture/bricks2.jpg", "async_joinable", GL_RGB, "diffuseMap", false);
 	auto wall_normal = std::make_shared<lyh_gl::helper::gl_texture>("texture/bricks2_normal.jpg", "async_joinable", GL_RGB, "normalMap", false);
-	auto wall_height= std::make_shared<lyh_gl::helper::gl_texture>("texture/bricks2_normal.jpg", "async_joinable", GL_RGB, "normalMap", false);
+	auto wall_height= std::make_shared<lyh_gl::helper::gl_texture>("texture/bricks2_disp.jpg", "async_joinable", GL_RGB, "normalMap", false);
  
 	wall_diffuse->loading_thread_join_blocking();
 	wall_normal->loading_thread_join_blocking();
@@ -284,6 +284,9 @@ int main()
 	int light_mode = 1;
 	float fovy = 90.0;
 	float normal_intense = 1.0f;
+
+	float heightScale = 0.1;
+	int parallax_mode = 1;
 	//helper function for rendering
 	auto renderQuad = [&]()->void
 	{
@@ -309,7 +312,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 		//moving light
-		//lightPos.z = sin(glfwGetTime() * 0.5) * 3.0;
+		lightPos.x = sin(glfwGetTime() * 3.0) * 5.0;
 		 //imGui
 		{
 			ImGui_ImplOpenGL3_NewFrame();
@@ -319,10 +322,16 @@ int main()
 
 
 			ImGui::SetNextWindowPos({ 32,50 });
-			ImGui::SetNextWindowSize({ 300,120 });
+			ImGui::SetNextWindowSize({ 300,200 });
 			ImGui::Begin("Input");
-			ImGui::SliderFloat3("Light Position", &lightPos.x, -10.0, 10.0); 
-			ImGui::SliderFloat("Normal Intense", &normal_intense,0.0, 2.0);
+			ImGui::SliderFloat3("Light Position", &lightPos.x, -10.0, 10.0);
+			ImGui::Text("Parallax Mode");
+			ImGui::RadioButton("Basic",&parallax_mode,0);
+			ImGui::RadioButton("Steep", &parallax_mode,1);
+			ImGui::RadioButton("Occlusion", &parallax_mode, 2);
+			ImGui::SliderFloat("Height Scale", &heightScale,0.0,1.0);
+			
+			//ImGui::SliderFloat("Normal Intense", &normal_intense,0.0, 2.0);
 			/*ImGui::Checkbox("Texture Inpu,t Gamma", &input_gamma);
 			ImGui::SliderFloat4("Light mixer", light_factor,0,2.0);*/
 			ImGui::End();
@@ -331,22 +340,26 @@ int main()
 			ImGui::Render();
 		}
 		 
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)width / (float)height, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
-		normal_shader.use();
-		normal_shader.setMat4("projection", projection);
-		normal_shader.setMat4("view", view);
-		// render normal-mapped quad
+		parallax_shader.use();
+		parallax_shader.setMat4("projection", projection);
+		parallax_shader.setMat4("view", view);
+		// render parallax-mapped quad
 		glm::mat4 model = glm::mat4(1.0f);
-		//model = glm::rotate(model, glm::radians(0.0), glm::normalize(glm::vec3(0.0, 0.0, 1.0))); 
-		normal_shader.setMat4("model", model);
-		normal_shader.setVec3("viewPos", camera.Position);
-		normal_shader.setVec3("lightPos", lightPos);
-		normal_shader.setFloat("normal_intense", normal_intense);
+		model = glm::rotate(model, glm::radians(0.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));  
+		parallax_shader.setMat4("model", model);
+		parallax_shader.setVec3("viewPos", camera.Position);
+		parallax_shader.setVec3("lightPos", lightPos);
+		parallax_shader.setFloat("heightScale", heightScale); // adjust with Q and E keys
+		parallax_shader.setInt("parallax_mode", parallax_mode);
+		//std::cout << heightScale << std::endl;
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, wall_diffuse->texture_id);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, wall_normal->texture_id);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, wall_height->texture_id);
 		renderQuad();
 
 		//// render light source plane

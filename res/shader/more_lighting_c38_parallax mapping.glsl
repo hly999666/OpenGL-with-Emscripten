@@ -1,5 +1,5 @@
 //shader vertex
-#version 300 es
+#version 330 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoords;
@@ -38,8 +38,8 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 //shader fragment
-#version 300 es
-precision highp float;
+#version 330 core
+//precision highp float;
 
 out vec4 FragColor;
 
@@ -54,7 +54,7 @@ in VS_OUT {
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D depthMap;
-
+uniform int parallax_mode;
 uniform float heightScale;
 
 vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
@@ -66,8 +66,8 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 vec2 ParallaxMapping_steep(vec2 texCoords, vec3 viewDir)
 { 
  
-    const float minLayers = 8;
-    const float maxLayers = 32;
+    const float minLayers = 8.0;
+    const float maxLayers = 32.0;
     float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));  
 
     float layerDepth = 1.0 / numLayers;
@@ -96,8 +96,8 @@ vec2 ParallaxMapping_steep(vec2 texCoords, vec3 viewDir)
 vec2 ParallaxMapping_occlusion(vec2 texCoords, vec3 viewDir)
 { 
     
-    const float minLayers = 8;
-    const float maxLayers = 32;
+    const float minLayers = 8.0;
+    const float maxLayers = 32.0;
     float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));  
   
     float layerDepth = 1.0 / numLayers;
@@ -141,7 +141,14 @@ void main()
     vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
     vec2 texCoords = fs_in.TexCoords;
     //using parallax mapping method to offset uv
-    texCoords = ParallaxMapping(fs_in.TexCoords,  viewDir);       
+    if(parallax_mode==0){
+        texCoords = ParallaxMapping(fs_in.TexCoords,  viewDir);       
+    }else if(parallax_mode==1){
+          texCoords = ParallaxMapping_steep(fs_in.TexCoords,  viewDir);       
+    }else if(parallax_mode==2){
+          texCoords = ParallaxMapping_occlusion(fs_in.TexCoords,  viewDir);       
+    }
+  
     if(texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0)
         discard;
     //standard blinn-phong shading 
