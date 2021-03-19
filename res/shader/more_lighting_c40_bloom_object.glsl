@@ -43,7 +43,7 @@ struct Light {
 
 uniform Light lights[4];
 uniform sampler2D diffuseTexture;
-uniform vec3 viewPos;
+ uniform float bloom_threshold;
 
 void main()
 {           
@@ -53,7 +53,7 @@ void main()
     vec3 ambient = 0.0 * color;
     // lighting
     vec3 lighting = vec3(0.0);
-    vec3 viewDir = normalize(viewPos - fs_in.FragPos);
+ 
     //per light 
     for(int i = 0; i < 4; i++)
     {
@@ -70,7 +70,7 @@ void main()
     vec3 result = ambient + lighting;
     // check with threshold color
     float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722));
-    if(brightness > 1.0)
+    if(brightness > bloom_threshold)
         BrightColor = vec4(result, 1.0);
     else
         BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
