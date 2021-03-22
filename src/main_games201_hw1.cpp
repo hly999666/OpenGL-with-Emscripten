@@ -204,6 +204,7 @@ int main()
 
     int sample_num = 64;
     float theta = 2;
+    int highest_order =5;
     loop = [&] {
 
       
@@ -247,7 +248,9 @@ int main()
    
         ImGui::Begin("Control");
         ImGui::SliderInt("sample num", &sample_num, 16, 512);
-        ImGui::SliderFloat("theta", &theta, 0, 16.0);
+ 
+        ImGui::SliderFloat("Gauss theta", &theta, 0, 16.0);
+        ImGui::SliderInt("LSM highest order", &highest_order, 4, 16);
         ImGui::End();
         auto name = "Plot_windows";
         ImPlot::GetStyle().AntiAliasedLines = true;
@@ -278,17 +281,24 @@ int main()
             
                 ImPlot::PlotScatter(type.c_str(), point_x.data(), point_y.data(), point_x.size());
                
-                if (point_x.size() > 2)gmp::hw1::lagrange_polynomial(point_x, point_y, point_output_x, point_output_y, sample_num);
+              if (point_x.size() > 2)gmp::hw1::lagrange_polynomial(point_x, point_y, point_output_x, point_output_y, sample_num);
                 if (point_output_x.size() > 0) {
-                    ImPlot::PlotLine("lagrange", point_output_x.data(), point_output_y.data(), point_output_x.size());
+                    ImPlot::PlotLine("Lagrange", point_output_x.data(), point_output_y.data(), point_output_x.size());
 
                 }
                 if (point_x.size() > 2)gmp::hw1::gauss(point_x, point_y, point_output_x, point_output_y, sample_num, theta);
                 if (point_output_x.size() > 0) {
-                    ImPlot::PlotLine("gauss", point_output_x.data(), point_output_y.data(), point_output_x.size());
-
+                    ImPlot::PlotLine("Gauss", point_output_x.data(), point_output_y.data(), point_output_x.size());
+                } 
+                int order = highest_order;
+              /*  if (point_x.size() >2)gmp::hw1::LSM_base(point_x, point_y, point_output_x, point_output_y, sample_num, order);
+                if (point_output_x.size() > 2) {
+                    ImPlot::PlotLine("LSM_base", point_output_x.data(), point_output_y.data(), point_output_x.size());
+                }*/
+                if (point_x.size() >2)gmp::hw1::LSM(point_x, point_y, point_output_x, point_output_y, sample_num, order);
+                if (point_output_x.size() >2) {
+                    ImPlot::PlotLine("LSM", point_output_x.data(), point_output_y.data(), point_output_x.size());
                 }
-               
             }
 
        

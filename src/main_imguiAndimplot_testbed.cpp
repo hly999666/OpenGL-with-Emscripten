@@ -188,7 +188,7 @@ int main()
 
         // glfw window creation
         // --------------------
-          window = glfwCreateWindow(1920, 1080, "Basic_Fractal_Tree2D", NULL, NULL);
+          window = glfwCreateWindow(1920, 1080, "Fitting", NULL, NULL);
         if (window == NULL)
         {
             std::cout << "Failed to create GLFW window" << std::endl;
