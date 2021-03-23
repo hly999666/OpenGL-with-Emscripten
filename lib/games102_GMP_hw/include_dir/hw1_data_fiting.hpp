@@ -284,15 +284,97 @@ namespace gmp {
 				ATA = A.transpose() * A;
 				ATb = A.transpose() * b;
 				x = ATA.inverse() * ATb;
+				for (auto xcoord : xs)
+				{
+					float y = x(0);
+					for (int i = 1; i < highest + 1; i++)
+						y += x(i) * pow(xcoord, i);
+					ys.push_back(y);
+				}
 			}
 
-			for (auto xcoord : xs)
-			{
-				float y = x(0);
-				for (int i = 1; i < highest + 1; i++)
-					y += x(i) * pow(xcoord, i);
-				ys.push_back(y);
-			}
+		
 		};
-	}
-}
+
+		void ridge_regression(
+			const  std::vector<float>& point_x,
+			const  std::vector<float>& point_y,
+			std::vector<float>& xs,
+			std::vector<float>& ys,
+			unsigned int sample_num,
+			int highest,
+			double lamda
+		) {
+			buildSampling(point_x, point_y, xs, ys, sample_num);
+			int length = point_x.size();
+			highest = std::min(length - 2, highest);
+
+			Eigen::MatrixXf B(length, highest + 1);
+			Eigen::MatrixXf Y(length, 1);
+			for (int i = 0; i < length; i++) {
+				for (int j = 0; j < highest + 1; j++) {
+					B(i, j) = pow(point_x[i], (double)j);
+				}
+				Y(i, 0) = point_y[i];
+			}
+			auto BT = B.transpose();
+			auto BTB_add_lamdba = BT * B+ lamda * Eigen::MatrixXf::Identity(highest + 1, highest + 1);
+			auto a = BTB_add_lamdba.inverse() * BT * Y;
+
+			auto _f = [&](double x)->double {
+				Eigen::MatrixXf _x(highest + 1, 1);
+				for (int i = 0; i < highest + 1; i++) _x(i, 0) = pow(x, (double)i);
+				auto val = _x.transpose() * a;
+				return val(0, 0);
+			};
+
+			for (int i = 0; i < xs.size(); i++) {
+				ys.push_back(_f(xs[i]));
+			}
+
+
+		};
+		void ridge_regression_base(
+			const  std::vector<float>& point_x,
+			const  std::vector<float>& point_y,
+			std::vector<float>& xs,
+			std::vector<float>& ys,
+			unsigned int sample_num,
+			int highest,
+			double lamda
+		) {
+			buildSampling(point_x, point_y, xs, ys, sample_num);
+			int length = point_x.size();
+			highest = std::min(length - 2, highest);
+
+			Eigen::MatrixXf A(length, highest + 1);
+			Eigen::MatrixXf ATA_add(highest + 1, highest + 1);
+
+			Eigen::VectorXf b(length);
+			Eigen::VectorXf ATb(highest + 1);
+			Eigen::VectorXf x(highest + 1);
+			if (length > 2)
+			{
+				for (int i = 0; i < length; i++)
+				{
+					for (int j = 0; j < highest + 1; j++)
+						A(i, j) = pow(point_x[i], j);
+					b(i) = point_y[i];
+				}
+				ATA_add = A.transpose() * A + lamda * Eigen::MatrixXf::Identity(highest + 1, highest + 1);
+				ATb = A.transpose() * b;
+				x = ATA_add.inverse() * ATb;
+
+				for (auto xcoord : xs)
+				{
+					float y = x(0);
+					for (int i = 1; i < highest + 1; i++)
+						y += x(i) * pow(xcoord, i);
+					ys.push_back(y);
+				}
+			}
+
+			 
+		};
+	};
+};

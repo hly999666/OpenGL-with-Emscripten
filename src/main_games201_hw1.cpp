@@ -205,6 +205,7 @@ int main()
     int sample_num = 64;
     float theta = 2;
     int highest_order =5;
+    float riddge_lambda =4.0;
     loop = [&] {
 
       
@@ -244,13 +245,14 @@ int main()
         //ImGui::SetNextWindowPos({ 320,50 });
         //ImGui::SetNextWindowSize({ 1024,1024 });
         ImGui::SetNextWindowPos({ 32,50 });
-        ImGui::SetNextWindowSize({ 400,128 });
+        ImGui::SetNextWindowSize({ 400,200 });
    
         ImGui::Begin("Control");
         ImGui::SliderInt("sample num", &sample_num, 16, 512);
  
         ImGui::SliderFloat("Gauss theta", &theta, 0, 16.0);
         ImGui::SliderInt("LSM highest order", &highest_order, 4, 16);
+        ImGui::SliderFloat("Riddge_lambda", &riddge_lambda, 0.0,128.0);
         ImGui::End();
         auto name = "Plot_windows";
         ImPlot::GetStyle().AntiAliasedLines = true;
@@ -280,25 +282,27 @@ int main()
             if (point_x.size() > 0 && point_y.size() > 0) {
             
                 ImPlot::PlotScatter(type.c_str(), point_x.data(), point_y.data(), point_x.size());
-               
-              if (point_x.size() > 2)gmp::hw1::lagrange_polynomial(point_x, point_y, point_output_x, point_output_y, sample_num);
+                int order = highest_order;
+                if (point_x.size() > 2)gmp::hw1::lagrange_polynomial(point_x, point_y, point_output_x, point_output_y, sample_num);
                 if (point_output_x.size() > 0) {
                     ImPlot::PlotLine("Lagrange", point_output_x.data(), point_output_y.data(), point_output_x.size());
-
                 }
                 if (point_x.size() > 2)gmp::hw1::gauss(point_x, point_y, point_output_x, point_output_y, sample_num, theta);
                 if (point_output_x.size() > 0) {
                     ImPlot::PlotLine("Gauss", point_output_x.data(), point_output_y.data(), point_output_x.size());
                 } 
-                int order = highest_order;
-              /*  if (point_x.size() >2)gmp::hw1::LSM_base(point_x, point_y, point_output_x, point_output_y, sample_num, order);
-                if (point_output_x.size() > 2) {
-                    ImPlot::PlotLine("LSM_base", point_output_x.data(), point_output_y.data(), point_output_x.size());
-                }*/
+                
+              
                 if (point_x.size() >2)gmp::hw1::LSM(point_x, point_y, point_output_x, point_output_y, sample_num, order);
                 if (point_output_x.size() >2) {
                     ImPlot::PlotLine("LSM", point_output_x.data(), point_output_y.data(), point_output_x.size());
+                } 
+
+                if (point_x.size() > 2)gmp::hw1::ridge_regression(point_x, point_y, point_output_x, point_output_y, sample_num, order, riddge_lambda);
+                if (point_output_x.size() > 2) {
+                    ImPlot::PlotLine("ridge_regression", point_output_x.data(), point_output_y.data(), point_output_x.size());
                 }
+            
             }
 
        
