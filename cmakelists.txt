@@ -11,6 +11,7 @@ set(BUILD_TORCH OFF)
 if(BUILDWASM)
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/externs/")
 #set(GLM_DIR "${CMAKE_SOURCE_DIR}/externs/glm/cmake/glm")
+#set(GLM_DIR "${CMAKE_SOURCE_DIR}/externs/glm/cmake/glm")
 #message("${GLM_DIR}")
 endif()
 
@@ -18,7 +19,7 @@ endif()
 #message(STATUS "GLM included at ${GLM_INCLUDE_DIR}")
 set(SRC 
 #src/main_gl_c7_Textures.cpp
-src/main_games201_hw1.cpp
+src/main_gl_c41_Deferred_Shading.cpp
 #src/main_fractalTree2D_Basic.cpp
 )
 

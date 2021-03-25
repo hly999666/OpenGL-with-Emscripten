@@ -350,7 +350,7 @@ namespace  lyh_gl {
 				else if (mode == "sync") {
 					//run task
 					task();
-					status = "loading";
+					status = "loaded";
 				}
 				else if (mode == "async_joinable") {
 					//run task
