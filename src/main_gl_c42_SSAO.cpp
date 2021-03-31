@@ -168,6 +168,12 @@ int main()
 	lyh_gl::shading::Shader light_cube("more_lighting_c41_deferred_shading_light_cube.glsl");
 
 	lyh_gl::shading::Shader light_pass("more_lighting_c41_deferred_shading_light_pass.glsl");
+
+
+	lyh_gl::shading::Shader ssao_geometry_pass("more_lighting_c42_SSAO_geometry_pass.glsl");
+	lyh_gl::shading::Shader ssao_lighting_pass("more_lighting_c42_SSAO_lighting_pass.glsl");
+	lyh_gl::shading::Shader ssao_ssao_pass("more_lighting_c42_SSAO_ao_pass.glsl");
+	lyh_gl::shading::Shader ssao_blur_pass("more_lighting_c42_SSAO_blur_pass.glsl");
 	//load model and texture
  
 	auto meshes = lyh_gl::loadModelGLTF("backpack/backpack.gltf");
