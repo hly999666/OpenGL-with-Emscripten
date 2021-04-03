@@ -31,11 +31,11 @@ layout (location = 0) out vec3 gPosition;
 layout (location = 1) out vec3 gNormal;
 layout (location = 2) out vec3 gAlbedo;
 
-//uniform sampler2D texture_diffuse1;
+uniform sampler2D texture_diffuse1;
 in vec2 TexCoords;
 in vec3 FragPos;
 in vec3 Normal;
-
+uniform int sampleTex;
 void main()
 {    
     // store the fragment position vector in the first gbuffer texture
@@ -43,6 +43,10 @@ void main()
     // also store the per-fragment normals into the gbuffer
     gNormal = normalize(Normal);
     // and the diffuse per-fragment color
-    gAlbedo.rgb = vec3(0.95);
-    //gAlbedo.rgb =texture(texture_diffuse1,TexCoords).rgb;
+    //gAlbedo.rgb = vec3(0.95);
+    if(sampleTex==1){
+       gAlbedo.rgb =texture(texture_diffuse1,TexCoords).rgb;
+    }else{
+       gAlbedo.rgb = vec3(0.95);
+    }
 }

@@ -174,14 +174,14 @@ int main()
 	//load model and texture
  
 	auto meshes = lyh_gl::loadModelGLTF("backpack/backpack.gltf");
-	//auto tex_diffuse = std::make_shared<lyh_gl::helper::gl_texture>("model/backpack/diffuse.jpg", "async_joinable", GL_RGB, "texture_diffuse1", false);
+	auto tex_diffuse = std::make_shared<lyh_gl::helper::gl_texture>("model/backpack/diffuse.jpg", "async_joinable", GL_RGB, "texture_diffuse1", false);
 	//auto tex_spec    = std::make_shared<lyh_gl::helper::gl_texture>("model/backpack/specular.jpg", "async_joinable", GL_RGB, "texture_specular1", false);
-	//tex_diffuse->loading_thread_join_blocking();
-	//meshes[0].textures.push_back(tex_diffuse);
+	tex_diffuse->loading_thread_join_blocking();
+	meshes[0].textures.push_back(tex_diffuse);
 	//tex_spec->loading_thread_join_blocking();
 	//meshes[0].textures.push_back(tex_spec);
 
-	//sao_geometry_pass.setTexUnit(*tex_diffuse);
+	ssao_geometry_pass.setTexUnit(*tex_diffuse);
 	//geometry_pass.setTexUnit(*tex_spec);
 
  // g-buffer setup
@@ -416,7 +416,9 @@ int main()
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	auto font_1 = io.Fonts->AddFontFromFileTTF("./res/font/Roboto-Medium.ttf", 16.0f);
 	   
-      
+     
+	float radius=  0.5;
+	int render_mode = 1;
 	render_loop = [&] {
 		//timing
 		float currentFrame = glfwGetTime();
@@ -445,10 +447,11 @@ int main()
 
 			ImGui::SetNextWindowPos({ 32,50 });
 			ImGui::SetNextWindowSize({ 400,200 });
-			ImGui::Begin("Render Output");
-
-			/*ImGui::RadioButton("Final Color", &render_output, 0);
-			ImGui::RadioButton("Texture Color", &render_output, 1);
+			ImGui::Begin("Render Input");
+			ImGui::RadioButton("Final Color", &render_mode,1);
+			ImGui::RadioButton("SSAO", &render_mode, 0);
+			ImGui::SliderFloat("SSAO Radius", &radius, 0.0, 4.0); 
+			/*
 			ImGui::RadioButton("Normal", &render_output, 2);
 			ImGui::RadioButton("Specular", &render_output, 3);
 			ImGui::RadioButton("Position", &render_output,4);
@@ -489,7 +492,8 @@ int main()
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(0.0, 7.0f, 0.0f));
 			model = glm::scale(model, glm::vec3(7.5f, 7.5f, 7.5f));
-			ssao_geometry_pass.setMat4("model", model);
+			ssao_geometry_pass.setMat4("model", model); 
+			ssao_geometry_pass.setInt("sampleTex", 0);
 			ssao_geometry_pass.setInt("invertedNormals", 1); // invert normals as we're inside the cube
 			renderCube();
 			ssao_geometry_pass.setInt("invertedNormals", 0);
@@ -499,6 +503,7 @@ int main()
 			//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
 			model = glm::scale(model, glm::vec3(1.0f));
 			ssao_geometry_pass.setMat4("model", model);
+			ssao_geometry_pass.setInt("sampleTex", 1);
 			meshes[0].Draw(ssao_geometry_pass);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
@@ -515,6 +520,7 @@ int main()
 				 
 			
 			ssao_ssao_pass.setMat4("projection", projection);
+			ssao_ssao_pass.setFloat("radius", radius);
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, gPosition);
 			glActiveTexture(GL_TEXTURE1);
@@ -547,6 +553,7 @@ int main()
 			// Update attenuation parameters
 			const float linear = 0.09;
 			const float quadratic = 0.032;
+			ssao_lighting_pass.setInt("render_mode", render_mode);
 			ssao_lighting_pass.setFloat("light.Linear", linear);
 			ssao_lighting_pass.setFloat("light.Quadratic", quadratic);
 			glActiveTexture(GL_TEXTURE0);

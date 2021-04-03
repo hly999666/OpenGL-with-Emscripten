@@ -20,7 +20,7 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedo;
 uniform sampler2D ssao;
-
+uniform int render_mode;
 struct Light {
     vec3 Position;
     vec3 Color;
@@ -32,7 +32,9 @@ uniform Light light;
 
 void main()
 {             
-    // retrieve data from gbuffer
+ if(render_mode==1){
+ 
+   // retrieve data from gbuffer
     vec3 FragPos = texture(gPosition, TexCoords).rgb;
     vec3 Normal = texture(gNormal, TexCoords).rgb;
     vec3 Diffuse = texture(gAlbedo, TexCoords).rgb;
@@ -57,4 +59,10 @@ void main()
     lighting += diffuse + specular;
 
     FragColor = vec4(lighting, 1.0);
+ }else{ 
+    float AmbientOcclusion = texture(ssao, TexCoords).r;
+    FragColor = vec4(AmbientOcclusion,AmbientOcclusion,AmbientOcclusion, 1.0);
+ 
+ }
+  
 }
