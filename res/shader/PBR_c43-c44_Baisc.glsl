@@ -44,8 +44,10 @@ uniform vec3 camPos;
 const float PI = 3.14159265359;
 
 //faster normal using dFd
+uniform int tex_mode;
 vec3 getNormalFromMap()
 {
+    if(tex_mode==0)return  normalize(Normal);
     vec3 tangentNormal = texture(normalMap, TexCoords).xyz * 2.0 - 1.0;
 
     vec3 Q1  = dFdx(WorldPos);
@@ -101,13 +103,27 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
+
+//render ui input 
+uniform int render_mode;
+uniform vec3 _albedo;
+uniform float _metalness;
+uniform float _roughness;
+uniform float _ao;
 void main()
 {          
     //get parameter from texture   
-    vec3 albedo     = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
-    float metallic  = texture(metallicMap, TexCoords).r;
-    float roughness = texture(roughnessMap, TexCoords).r;
-    float ao        = texture(aoMap, TexCoords).r;
+    vec3 albedo     = _albedo;
+    float metallic  =_metalness;
+    float roughness =_roughness;
+     float ao =_ao;
+ 
+    if(tex_mode==1){
+      albedo   =  pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
+      metallic =texture(metallicMap, TexCoords).r;
+      roughness=texture(roughnessMap, TexCoords).r;
+      ao= texture(aoMap, TexCoords).r;
+    }
 
     vec3 N = getNormalFromMap();
     vec3 V = normalize(camPos - WorldPos);
@@ -116,6 +132,8 @@ void main()
     F0 = mix(F0, albedo, metallic);
 
 //
+   vec3 diffuse= vec3(0.0);
+   vec3 gloss= vec3(0.0);
     vec3 Lo = vec3(0.0);
     for(int i = 0; i < 4; ++i) 
     {
@@ -146,15 +164,26 @@ void main()
         // scale light by NdotL
         float NdotL = max(dot(N, L), 0.0);        
 
+         vec3 diffuse_lo=kD * albedo / PI * radiance * NdotL;  
+         vec3 gloss_lo=specular* radiance * NdotL;
+         diffuse+=diffuse_lo;
+         gloss+=gloss_lo;
         //real-time version of render equation,add to outgoing radiance Lo
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL; 
+        //Lo += (kD * albedo / PI + specular) * radiance * NdotL; 
+        //Lo += diffuse_lo+gloss_lo;
     }   
-    
+    Lo=diffuse+gloss;
     // ambient lighting
     vec3 ambient = vec3(0.03) * albedo * ao;
+    vec3 color =vec3(0.0);
+    if(render_mode==0){
+        color= ambient + Lo;
+    }else if(render_mode==1){
+        color=diffuse;
+    }else if(render_mode==2){
+       color=gloss;
+    }
     
-    vec3 color = ambient + Lo;
-
     //  tonemapping
     color = color / (color + vec3(1.0));
     // gamma 
