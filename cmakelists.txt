@@ -19,7 +19,7 @@ endif()
 #message(STATUS "GLM included at ${GLM_INCLUDE_DIR}")
 set(SRC 
 #src/main_gl_c7_Textures.cpp
-src/main_gl_c43-c44_PBR_Baisc.cpp
+src/main_gl_c45_ibl_diffuse.cpp
 #src/main_fractalTree2D_Basic.cpp
 )
 
