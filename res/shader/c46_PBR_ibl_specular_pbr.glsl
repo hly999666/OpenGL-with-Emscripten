@@ -110,7 +110,8 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }  
 // ----------------------------------------------------------------------------
-
+uniform int IBL_Diffuse;
+uniform int IBL_Specular;
 void main()
 {		
     //read material texture
@@ -130,6 +131,7 @@ void main()
 
     // reflectance equation
     //direct light,looping light
+
     vec3 Lo = vec3(0.0);
     for(int i = 0; i < 4; ++i) 
     {
@@ -171,15 +173,23 @@ void main()
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;	  
-    
-    vec3 irradiance = texture(irradianceMap, N).rgb;
-    vec3 diffuse      = irradiance * albedo;
-    
+    vec3 diffuse=vec3(0.0,0.0,0.0);
+    if(IBL_Diffuse==1){
+      vec3 irradiance = texture(irradianceMap, N).rgb;
+      diffuse= irradiance * albedo;
+    }
+
+    vec3 specular=vec3(0.0,0.0,0.0);
+
     //Split-Sum approximation for specular
-    const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(prefilterMap, R,  roughness * MAX_REFLECTION_LOD).rgb;    
-    vec2 brdf  = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
-    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+    if(IBL_Specular==1){
+
+       const float MAX_REFLECTION_LOD = 4.0;
+       vec3 prefilteredColor = textureLod(prefilterMap, R,  roughness * MAX_REFLECTION_LOD).rgb;    
+       vec2 brdf  = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+       specular = prefilteredColor * (F * brdf.x + brdf.y);
+}
+   
 
     vec3 ambient = (kD * diffuse + specular) * ao;
     
